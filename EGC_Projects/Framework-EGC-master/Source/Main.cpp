@@ -19,7 +19,13 @@ int main(int argc, char **argv)
 	WindowObject* window = Engine::Init(wp);
 
 	// Create a new 3D world and start running it
+	/* In order to check projects:
+		Project 1: World *world = new Tema1();
+		Project 2: World *world = new Tema2();
+		Project 3: World *world = new Tema3();
+	*/
 	World *world = new Tema3();
+	
 	world->Init();
 	world->Run();
 
