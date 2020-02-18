@@ -1,0 +1,7 @@
+Written in C/C++
+
+Project 1: Message Channel implemtation. Check for corrupted, missing and delayed packages. Resend packages if necessary
+
+Project 2: Transmission of TCP packages
+
+Project 3: HTTP operations. 
