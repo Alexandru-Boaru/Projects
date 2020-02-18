@@ -9,12 +9,14 @@ Project 1: Fourier and Fast Fourier Transform using threads
 
 Project 2: Space Explorers and Federation HQ (bidirectional communication using threads)
   Written in Java (using Netbeans IDE)
+  Implementation of a channel that stores messages from space explorers and from federation hq and send them from one another in order to explore all galaxies (nodes of a graph). The implementation is based on the Producer-Consumer problem
   To run:
      java Homework <wormHoles> <hashCount> <federationHQCount> <spaceExplorerCount>
     
 
 Project 3: Image Processing with MPI
   Written in C, using MPI
+  A program which can apply a series of filters (smooth, blur, emboss, mean, sharpen) to images formatted as PGM or PNM
   To compile use make
   To run:
      mpirun -np N ./tema3 image_in.pnm image_out.pnm filter1 filter2 ... filterX
