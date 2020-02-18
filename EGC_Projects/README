@@ -1,0 +1,29 @@
+The source for the 3 projects is found in Projects/EGC_Projects/Framework-EGC-master/Source/Laboratoare under the names of Tema1, Tema2 and Tema3
+
+For running one of the projects there must be line in the Main.cpp file:
+  World *world = new Tema<project_number>();
+  
+Project 1: Flappy Bird
+  Keep the bird in the air and avoid obstacles
+  Controls:
+    Left Mouse Button: Jump
+    P: Pause
+    R: Reset
+  
+Project 2: Airplane
+ Fly as long as possible, avoid obstacles and collect fuel
+ Controls:
+   Mouse: Move up and down
+   C: Change camera perspective (first person or third person)
+   P: Pause
+   R: Reset
+   V: Change airplane skin
+   B: Change background
+   
+Project 3: Worms3D
+  A two player in which  you fire projectiles at enemy player
+  Controls:
+    Arrow Keys: Move
+    Mouse: Aim
+    Left Mouse Button: Fire projectile
+ 
