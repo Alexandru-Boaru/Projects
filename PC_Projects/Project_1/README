@@ -1,0 +1,79 @@
+TEMA PC 1
+PROTOCOL CU FEREASTRA GLISANTA
+BOARU ALEXANDRU 321CB
+
+	Inainte de a ma apuca propriu zis de facut tema, am studiat cateva materiale (din cursurile de pe acs si cateva articole pe internet) legate de functionalitatea acestui protocol. La final, in incercarea de a realiza un un protocol cat mai optim, am decis sa folosesc un model de protocol SELECTIVE REPEAT.
+
+	Pentru compilarea fisierelor am folosit Makefile-ul din schelet
+
+	Functii si structuri definite in fisierele in  send.c si recv.c
+
+	cadru - am definit o structura numita "cadru" de dimensiunea payload-ului unui mesaj. Aceasta contine campurile:
+		-secv: numarul pachetului respectiv
+		-xor_char: octet folosit pentru verificarea unui pachet corupt
+		-info: informatia extrasa din fisier
+
+	xor_check - functie care calculeaza octetul folosit pentru verificarea unui posibil pachet corupt, folosind xor peste informatie. Acesta functie primeste ca paramatrii informatia ce se trimite, numarul de secventa al pachetului si dimensiunea (numarul de bytes) ai informatiei
+
+	getSecv - functie care extrage numarul pachetului din dintr-o structura de tip msg. Primeste ca parametru un msg
+
+	cycle - functie folosita pentru a cicla intr-un buffer. Functia primeste ca parametrii indexul din buffer si dimensiunea buffer-ului. Daca indexul depaseste dimensiunea buffer-ului, functia intoarce diferenta dintre cei parametrii, altfel intoarce indexul
+
+	isEmpty - functie care verifica daca buffer-ul de msg-uri este gol
+
+	isEmptyVec - functie care verifica daca un vector dat ca parametru este gol
+
+	contains - functie care verifica daca un numar dat ca parametru se regaseste intr-un vector de dimensiune num
+
+	FUNTIONALITATE SEND
+
+	Declar un buffer destul de mare (numit window) care va contine toate msg-urile care urmeaza sa fie trimise recv-ului. 
+	Variabile importante:
+		-speed - viteza primita ca argument
+		-delay - intarzierea primita ca argument
+		-w - dimensiunea ferestrei
+		-packnum - numarul de mesaje
+		-begin_w - index care indica catre cel mai vechi pachet trimis din fereastra
+		-end_w - index care indica catre cel mai nou pachet trimis din fereastra
+		-secv - numarul unui pachet
+		-fsize - dimensiunea fisierului (in bytes)
+		-fd -file descriptor pentru fisier de intrare
+
+	-Prima oara compun un mesaj care contine numele pe care recv v-a trebui sa-l deschida, dimensiunea ferestrei, numarul de mesaje si dimensiunea fisierului. Acest mesaj este trimis si se asteapta un raspuns pentru acesta (primul mesaj functioneaza ca un protocol START_STOP)
+	-Dupa confirmarea mesajului, citesc din fisier pana umplu campul info al unui cadru, ii dau un numar de secventa si calculez xor_check. Cadrul e introdus intr-un payload (campul lui msg) si este stocat in bufferul de mesaje. Se repeta operatia pana la finalul fisierului.
+	-Initializez un vector numit EList folosit pentru stocarea numerelor fiecarui pachet care a fost/se trimite. Initializez si un index numit expecting_test folosit pentru a parcurge vectorul EList.
+	-Trimit catre recv un numar de pachete egal cu dimensiunea ferestrei, pentru a umple link-ul
+	-Send-ul intr-a intr-o bucla in care asteapta sa primesca confirmarile pachetelor. 
+	-Daca expira timpul (timeout) inseamna ca s-au pierdut mai multe pachete la rand si recv intarzie cu raspunsul pentru celelalte. Pentru asta, citesc din Elist numarul pachetului pe care ma asteptam sa-l primesc si il retrimit.
+	-Daca s-a primit un ACK inainte de timeout, se verifica daca mesajul are lungimea 0 (semnifica ca s-a primit ultimul pachet), caz in care se iese din bucla si se incheie programul
+	-Daca numarul primit nu exista in EList (se primeste ack-ul de la un packet care a fost deja confirmat, se poate intampla la rearanjarea pachetelor), atunci se ignora si se trece la urmatoarea asteptare
+	-Se muta expecting_test pana se gaseste numarul primit din ACK. Daca s-au gasit alte numere pe parcursul lui EList, se retransmit (semnificatia este ca s-au pierdut/corupt niste pachete si atunci se retrimit)
+	-Se muta begin_w si end_w daca e cazul (begin_w nu se muta daca pachetul de pe acea pozitie nu a fost confirmat, iar end_w nu se muta daca indicatorul a ajuns pe pozitia ultimului pachet)
+	-Numarul primit prin ack este scos din EList, iar pachetul cu acel numar este sters din buffer.
+	-Expecting_test inainteaza spre urmatorul numar de pachet asteptat
+	-La final se trimite un nou pachet (aflat in pozitia end_w) si al carui numar este introdus in EList
+	-Dupa ce se iese din bucla, se inchide fisierul de input si se incheie functia main
+
+	FUNTIONALITATE RECV
+
+	-Declar un buffer destul de mare (numit window) care va contine toate msg-urile care urmeaza sa fie primite de la sender. 
+	-Variabile importante:
+
+		-w - dimensiunea ferestrei
+		-packnum - numarul de mesaje
+		-begin_w - index care indica catre cel mai vechi pachet trimis din fereastra
+		-end_w - index care indica catre cel mai nou pachet trimis din fereastra
+		-secv - numarul unui pachet
+		-fsize - dimensiunea fisierului (in bytes)
+		s-fd -file descriptor pentru fisier de iesire
+
+	-Mai intai se asteapta primirea mesajului cu numele fisierului si apoi confirma primirea acestuia
+	-Deschide fisierul si se intra intr-o bucla in care se asteapta pachetele
+	-Dupa ce primeste un pachet, il verifica daca e corupt, folosind functia xor_check pe informatia primita si comparand cu xor_char. Daca pachetul e corupt, acesta este ignorat si se trece la urmatoarea iteratie
+	-Se pune pachetul in buffer in pozitia corecta
+	-End_w se muta la pozitia noului pachet, daca este mai mare decat cel la care era deja pozitionat
+	-Se muta informatia pachetelor din buffer in fisierul de output, pana se ajunge la o pozitie lipsa. Deci pachetele sunt introduse in ordine, iar daca lipsesc pachete, acestea raman stocate in buffer.
+	-Se creaza un mesaj ACK in care se pune numarul pachetului primit si se trimite sender-ului
+	-Odata ce s-au scris toate pachetele, recv trimite un mesaj cu lungime 0 si iese din bucla
+	-La final se inchide fisierul si se iese din main
+

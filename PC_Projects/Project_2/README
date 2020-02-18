@@ -1,0 +1,123 @@
+BOARU ALEXANDRU
+321CB
+TEMA PC 2
+Aplicatie client-server TCP si UDP pentru gestionarea mesajelor
+
+Am decis sa scriu tema in C++, asa ca am inceput prin a ma documenta putin despre tipurile de containere din stl ce pot fi folosite in acest limbaj de programare. Am incercat sa aleg containere care sa ma ajute sa implementez tema intr-un mod cat mai eficient
+
+Am pornit de la fisierele din laboratorul 8. Am folosit fisierul helpers.h care defineste o functie care printeaza erori (DIE) si un numar BUFLEN care semnifica dimensiunea cu care definesc buffer-ul (este setat pe 5000)
+
+Makefile-ul doar compileaza fisierele c++ si strege executabilele. Pentru a rula executabilele trebuie introduse comenzile
+	./server <port>
+	./subscriber <client_id> <ip> <port>
+Fisierele sunt compilate cu flag-ul -std=c++11
+
+Functionalitate subcriber:
+Am definit doua structuri de date:
+	-pachet: folosit pentru stocarea datelor ce urmeaza sa fie trimise catre server; acesta contine un camp len, char array care reprezinta lungimea payload-ului sub forma de string, si mes, payload-ul propriu zis
+
+Exista doua functii:
+	-usage: printeaza un mesaj in care zice care e formatul corect de intrare si iese din program
+	-usage1: printeaza un mesaj care avertizeaza ca s-a introdus un client id prea lung
+
+	In main am declarat mai multe variabile:
+		-sockfd: descriptorul de la socketul care face legatura cu server-ul
+		-n si ret: folosite pentru verificari de erori
+		-serv_addr: stryctura in care se stocheaza informatia adresei
+		-buffer: un char array folosit in principiu pentru stocarea initiala a datelor primite
+		-name topic si SF, folosite pentru stocare de informatii si pentru trimiterea mai departe spre server
+		-len si rem: folosite la despartirea mesajelor care vin unificate/truncheate de la server
+		-pack: structura de tip pachet in care se stocheaza comanda ce urmeaza a fi trimisa
+		-s, saux si slen: sunt string-uri folosite in momentul in care despart mesajele unificate/truncheate
+	La inceput programul creaza un sochet pentru legatura TCP
+	Am adaugat doi descriptori in setul de descriptori de citire ai porgramului: unul pentru legatura cu server-ul si una cu unul pentru intrarea standard (stdin)
+	Am trimis un prim mesaj catre server cu textul "new <client_id> <IP> <host>", pentru ca server-ul sa stie numele noului client
+	Se intra in bucla de citire si se continua in functie de ce informatii primeste in urmatorii pasi
+
+	Daca se citeste de la tastatura, atunci se verifica daca comanda introdusa este valida. In cazul in care comanda nu e valida, atunci de trimite un mesaj de avertisment:
+	ex: la comanda subscribe, se verifica ca lungimea topic-ului sa fie e valida, ca SF sa fie 0/1 si ca numarul de argumente introdus sa fie corect. In caz de eroare se printeaza: "Comanda incorecta <lungime topic> <SF> <numar parametrii>"
+	la comanda unsubscribe se verifica daca ca lungimea topic-ului sa fie e valida si ca numarul de argumente introdus sa fie corect. In caz de eroare se printeaza: "Comanda incorecta <lungime topic> <numar parametrii>"
+	In cazul in care se scrie exit, atunci se iese din bucla, se inchide socketul de TCP si se iese din program
+
+	Daca se primeste un mesaj de la server, atunci tot continutul primit este trecut in string-ul s. Folosesc slen pentru a stoca sirul care reprezinta lungimea payload-ului si saux pentru a stoca payload-ul. Mai intai se citesc 4 caractere din s si se pun in slen (daca nu mai sunt 4 caractere in s, atunci se pune in slen ce se gaseste si trece la urmatoarea iteratie). Dupa care se trec un numar de bytes din s in saux egal cu valoarea numerica reprezentata de slen (cazul in care nu sunt toti octetii, atunci se trece ce se gaseste in saux si se trece la urmatoarea iteratie). 
+	Dupa ce s-a trecut mesajul in saux, atunci se verifica da mesajul este "exit" (semnifica ca exista deja cineva cu acest client_id) sau "disconnect" (semnifica faptul ca server-ul s-a inchis); ambele mesaje rezulta in inchiderea socketului si a programului. 
+	Daca mesajul nu este unul din cele de mai sus, atunci mesajul se afiseaza si se repeta procesul de citire pana cand s se goleste.
+	Acest program se inchide si in cazul in care server-ul se intrerupe legatura (de exemplu ctrl+C)
+
+Functionalitate server:
+	Am definit cinci structuri de date:
+		-subscriber: rol de stocare a id-ului, ip-ului si portul clientului
+		-pachet: rol de stocare a informatiei ce urmeaza a fi trimisa catre subcriber
+		-stored: structura care contine un pachet si un unordered_set de client_id-uri. Aceasta structura este folosita in implementarea SF-ului
+		-comanda: contine un camp char array in care se stocheaza o comanda primita de la subscriber
+		-message: structura in care se stocheaza informatiile din mesajul primit de la clientul UDP
+	Am doua functii:
+		usage: printeaza un mesaj cu formatul corect cu care ar trebui apelat programul si se inchide
+		feedback: o functie folosita pentru a trimite mesaje de feedback catre subscriber. Mesajele pot fi
+		"subscribed to <topic>", raspuns la comanda subscribe
+		"unsubcribed from <topic>", raspuns la comanda unsubscribe care se executa cu succes
+		"not subscribed to <topic>, raspuns la comanda unsubscribe in cazul in care clientul nu era conectat la acel topic
+		"this topic doesn't exist <topic> raspuns la comanda unsubscribe in cazul in care nu exista acel topic
+		"exit" raspuns in cazul in care un client incearca sa se conecteze cu un client_id care e deja conectat
+		"disconnect" mesaj trimis in cazul in care server-ul urmeaza sa se deconecteze
+
+	In functia main am declarat variabilele:
+		-sockTCP, sockUDP, newsockfd: descriptori folositi pentru socketii de TCP, UDP si clientii cei noi
+		-n si ret: folosite pentru verificari de erori
+		-i si j: pentru iteratii
+		-serv_addr si cli_addr: stryctura in care se stocheaza informatia adreselor de la client si de la server
+		-buffer: un char array folosit in principiu pentru stocarea initiala a datelor primite
+		-name, ip, port, topic, SF: folosite in retinerea informatiilor provenite de la clienti
+		-len si rem: folosite la despartirea mesajelor care vin unificate/truncheate de la server
+		-s, saux si slen: sunt string-uri folosite in momentul in care despart mesajele unificate/truncheate
+		-pack: un pachet in care se stocheaza un mesaj ce urmeaza a fi trimis catre subscriber
+		-stor: o structura de tip stored
+		-mes: o structura de tip message
+		-sid: un contor
+	De asemenea am declara urmatoarele containere:
+		-clientACT: unordered_set care contine client_id-urile care sunt conectate la server
+		-storage: un unordered_map in care se stocheaza elemente de tip stored (e folosit pentru SF)
+		-clientTCP_map: unordered_map care contine asocierile dintre socketi si subscriberi
+		-topic_map: unordered_map care foloseste topic-urile pe post de chei. Valorile asociate cheilor sunt unordered_maps care contin toti clientii care sunt abonati la acel topic, impreuna cu valorile lor de SF (0/1).
+		-comenzi: un vector care se umple cu comenzile primite de la subscriber
+
+	La inceput porgramul creaza socketi pentru legatura TCP si pentru cea UDP, pe care ii adauga in lista de socketi de citire, alaturi de stdin.
+
+	Se intra intr-o bucla in care se continua in functie de socket-ul de pe care se primeste vreun mesaj
+
+	Daca se primeste comanda "exit" de la tastatura (singura comanda acceptata) atunci  se trimite feedback "disconnect" prin toti socketii deschisi care fac legatura cu clientii. Dupa aceea se iese din bucla, se inchid socketii TCP si UDP si se inchide programul
+
+	Daca se primeste un mesaj de pe socket-ul TCP, inseamna ca s-a primit o noua cerere de conectiune de la un client. Se accepta conectiunea, se adauga descriptorul la multimea de descriptori si se printeaza mesajul "Noua conexiune de la <IP>, port <port>, socket client <descriptor_socket>
+
+	Daca se primeste un mesaj de pe socket-ul UDP, inseamna ca s-a primit un mesaj ce trebuie redirectat catre subscriberi. Server-ul se ocupa cu interpretarea datelor primite si apoi doar trimite mesajul ce trebuie afisat catre subscriberi
+	Datale primite se salveaza in structura mes, pentru a fi mai usor de accesate. Se verifica daca lungimea mesajului primit este in concordanta cu tipul acestui mesaj. Daca nu se respecta lungimea, atunci mesajul este ignorat
+	Daca topicul mesajului nu exista inainte in topic_map, atunci se introduce un nou element cu aceasta cheie si se declara un unordered_map gol pentru clientii acelui topic
+	M-am folosit de un string numit "mesaj" pentru a crea mesajul ce trebuie trimis catre clienti. In acest string concatenez bucata cu bucata toate elementele necesare, pana cand ajung la formatul dorit. La inceput se adauga adresa si portul clientului UDP care a trimis informatia (acetea se extrag din cli_addr)
+	In functie de tipul mesajului, se face o prelucrare a datelor:	
+		-tip 0: se adauga "+" sau "-" in functie de primul octet, dupa care se adauga numarul propriu zis in mesaj (se face conversia prin ntohl)
+		-tip 1: se face conversia numarului primit cu ntohs. Se adauga rezultatul numarului impartit la 100, un caracter '.', cifra zecimala ((b%100)/10) si cifra unitara (b%10)
+		-tip 2: se adauga "+" sau "-" in functie de primul octet, se face conversia numarului primit prin ntohl. Numarul obtinut se trece intr-un string auxiliar si se adauga un caracter '.' in pozitia corecta (se calculeaza in functie de ultimul octet)
+		-tip 3: se salveaza stringul intr-un buffer si apoi se trece in string
+	La final, dupa ce mesajul este pregatit, se calculeaza lungimea intregului mesaj si se converteste intr-un sir de 4 caractere (de exemplu 1500 -> "1500", 123 -> "0123", 4 -> "0004"). Acest sir este concatenat la inceputul mesajului.
+	Dupa ce mesajul este pregatit, acesta este introdus in pack. Se cauta in topic_map elementul cu cheia topic ceruta. Dupa ce se gaseste, se verifica ce clienti sunt abonati la acest topic. In functie de starea clientului se poate intampla:
+		-daca clientul e activ (exista in clientACT), atunci se trimite mesajul pe socketul asociat (se cauta in clientTCP_map)
+		-daca clientul e inactiv si SF e setat pe 0, atunci nu se intampla nimic
+		-daca clientul e inactiv se SF e setat pe 1, atunci se creaza o un nou element in storage in care se adauga pack si id-ul clientului in set-ul de clienti ai acelui pachet (in cazul in care se gasesc si alti clienti in aceasi situatie, se adauga in set si id-ul lor)
+
+	Daca se primeste un mesaj pe unul din socketii de clienti, atunci se realizeaza o operatie de despartire a mesajelor primite, asemanator cu ce am facut la subscriber, cu diferenta ca dupa despartire, se adauga comanda primita in vectorul comenzi. Dupa ce se termina buffer-ul, se citesc comenzile si se executa pe rand, dupa care sunt sterse din vector.
+	Comenzi primite de la subscriber:
+		-new: inseamna ca clientul tocmai s-a conectat si trimite datele sale catre server. Daca se gaseste un client activ care are deja acel client_id, atunci se trimite feedback "exit" si este inchis. De asemenea se verifica prin storage daca exista vreun mesaj adresat acestui client: daca se gaseste un astfel de mesaj, acesta e trimis si clientul e sters din acel set. Dupa ce se goleste set-ul de clienti ai unui mesaj, atunci acel element e sters cu totul din storage.
+		Clientul este adaugat in clientACT si in clientTCP_map
+		-subscribe: clientul vrea sa se aboneze la un topic. Se adauga acel topic (daca nu exista pana in acel moment) si adauga acel client in colectia de clienti ai topicului, impreuna cu SF-ul sau si se trimite feedback "subscribed to" catre client
+		-unsubscribe: clientul vrea sa nu mai fie abonat la un topic. Se sterge acel client din colectia de clienti a topicului si se trimite feedback cu "unsubscribed from". Daca clientul nu era abonat dinainte la acel topic, atunci se trimite feedback cu "not subscribed to", iar daca topicul nici macar nu exista, atunci se trimite feedback cu "this topic doesn't exist"
+		-exit: subscriberul vrea sa inchida conectiunea asa serverul elimina clientul din clientACT si din clientTCP_map si se inchide socketul
+ 
+	La final server-ul inchide socketii UDP si TCP si se inchide programul
+		
+	Observatii finale:
+	-Initial am implementat un client UDP simplu pentru a testa niste functionalitati ale programului (asta inainte de a primi clientul UDP de pe acs)
+	-In urma testarii folosind clientul UDP de pe acs am avut in general rezultate bune: se afisau toate mesajele, se facea store&forward ok. Am verificat cu mai multi clienti conectati in acelasi timp si cu mai multi clienti UDP care trimiteau mesaje in acelasi timp
+	-Nu stiam care urmau sa fie standardele de control al temei, asa ca am incercat sa rulez clientul UDP in cazuri mai extreme: sa trimita random mesaje cu delay de 0, sa trimita 1000 de mesaje unui client inactiv care avea SF setat pe 1, etc.
+	-Am avut situati in care clientul facea segfault sau abort trap: dar s-au rezolvat in mare parte dupa ce am decis sa folosesc clasa string in prelucrarea mesajelor si dupa ce am marit buffer-ul 5000 (initial era 1600)
+		
+		

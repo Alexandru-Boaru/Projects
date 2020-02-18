@@ -1,0 +1,106 @@
+BOARU ALEXANDRU
+321CB
+
+TEMA PC 3 - Client HTTP. Comunicatie cu REST API.
+
+Initial aveam de gand sa rezolv aceasta tema in C++, deoarece doream sa folosesc structurile puse la dispozitie de catre stl. Intr-un final am renuntat la C++, pentru ca aveam probleme (programul crapa si nu gaseam sursa problemei) si mi-am dat seama ca nu aveam nevoie de acele structuri.
+
+Am folosit functiile PARSON pentru extragere de valori, setare de valori si chiar creare  obiect json. Am pornit cu scheletul de cod primit de la laboratorul 9 (HTTP)
+
+Makefile creaza un executabil din fisierele client.c parson.c helpers.c si requests.c. Are o regula run si o regula clean
+
+
+Fisiere:
+helpers.c si helpers.h - contin functii folosite in mare parte pentru transmiterea si receptionarea mesajelor de la server. Aceste functii nu au fost modificate
+	-error: afiseaza mesaj de eroare si inchide programul
+	-compute_message: concateneaza linii la mesajul pregatit pentru trimitere
+	-open_connection: se deshide un socket pentru comunicarea cu server-ul
+	-close_connection: se inchide socketul
+	-send_to_server: se trimite mesajul catre server
+	-receive_from_server: se receptioneaza mesajul de la server
+
+requests.c si requests.h - initial contineau functiile din laboratorul de HTTP, dar le-am modificat astfel incat contine o singura functie care poate pregati un mesaj pentru oricare dintre cele 2 tipuri de cereri (GET/POST)
+
+	-compute_payload: primeste ca parametru un obiect json
+		-functia extrage toate perechile de nume-valoare existente in obiect si le concateneaza la string-ul s sub forma "nume=valoare&". Daca vreuna din valori este la randul ei un obiect json, atunci se apeleaza compute_payload pe aceast obiect si rezultatul se concateneaza la s
+
+		-Functii PARSON:
+		-json_object_get_count(): numarul de perechi cheie-valoare exista in obiect
+		-json_get_name(): extrag numele unei perechi cu indicele dat
+		-json_object_get_value_at(): extrag valoarea de la o perechea cu indicele dat
+
+	-compute_request: primeste ca parametrii adresa IP a server-ului, un string care reprezinta un token, un buffer ce contine cookie-urile ce urmeaza a fi prelucrate si un obiect json din care urmeaza sa se extraga datele
+		-mai intai se verifica daca exista un camp "data" in obiectul json. Daca exista atunci se verifica daca valoarea acestui camp este un alt obiect de tip json sau daca este de tip string (pentru ultimul task). Daca valoarea este un obiect, atunci se apeleaza functia compute_payload si se concateneaza rezultatul primit la string-ul s, daca valoarea este un string, atunci se preia acel string si se pune in s
+		-se extrag valorile din campurile "url", "method" si (daca exista) "type"
+		-in functie de valoarea din "method" se pune la inceputul mesajului header-ul specific lui GET sau POST
+		-pe urmatoarea linie se pune header-ul pentru host
+		-daca s-a primt un token ca parametru, se adauga linie de autentificare care contine token-ul
+		-daca s-a primit un buffer cu secventa cu cookie-uri atunci se intra intr-o bucla care adauga fiecare cookie gasit intr-un buffer, dupa care se adauga un header care contine toate cookie-urile
+		-daca exista campul "type" atunci se adauga header cu Content-Type si Content-Length
+		-se aduaga o linie goala
+		-daca requestul e de tip POST, se pune la final s
+		-se returneaza mesajul
+
+		-Functii PARSON:
+		-json_object_doget_object(): folosit ca sa extrag "data" si eventual "queryParams" 
+		-json_object_get_string(): folosit pentru a extrage informatiile ale caror existenta este sigura: url, method, type
+		
+client.c - fisier care contine functia main() si care se ocupa de transmiterea parametrilor catre compute_request, trimite mesaje catre server si receptioneaza mesaje de la acesta
+		-in mare parte se realizeaza aceleasi operatii pentru fiecare etapa, cu cateva modificari la fiecare etapa. Pasii urmati sunt urmatorii:
+		1. Prelucreaza raspunsul de la server (daca e cazul)
+		2. Goleste buffer-ul de cookie-uri si adauga in el noile cookie-uri (daca e cazul)
+		3. Creaza mesajul apeland functia compute_request()
+		4. Inchide si redeschide socketul catre server
+		5. Trimite mesajul catre server si asteapta raspunul de la acesta
+		6. Se trece la etapa urmatoare
+
+		-am creat un array de pointeri pentru message si pentru responses. Folosesc cate unul din pointeri la fiecare etapa in parte, iar la final dau free la toti acesti pointeri. Am ales o astfel de abordare pentru ca nu cumva sa sterg ceva pe parcurs in mod neintentionat
+		-la fiecare etapa in parte se afiseaza mesajul creat si mesajul 
+		
+		Task 1:
+			-Am initializat un obiect json nou in care am adaugat urmatoarele campuri: "url":"/task1/start" si "method":"GET". Acest obiect e folosit pentru crearea mesajului
+
+			-Functii JSON:
+			-json_value_init_object(): folosit ca sa creez un obiect JSON pentru task-ul 1
+			-json_value_get_object(): pentru a interpreta JSON value ca JSON Object
+			-json_object_set_string(): folosit pentru a completa obiectul gol de la task-ul 1 cu campurile necesare("url":"/task/start";"method":"GET")
+		Task 2:
+			-Aici nu am facut nimic in mod special. Am preluat cookie-urile primite si obiectul json si le-am folosit ca sa compun mesajul
+
+			-Functii JSON:
+			-json_parse_string(): folosit pentru a interpreta mesajul primit de la server ca un JSON value
+			-json_value_get_object(): pentru a interpreta JSON value ca JSON Object
+		
+		Task 3:
+			-Am extras "tokenul" din raspuns pentru a-l trimite ca parametru functiei care face mesajul si am adaugat campurile "raspuns1":"omul" si "raspuns2":"numele" in campul "data" al obiectului json
+
+			-Functii JSON:
+			-json_parse_string(): folosit pentru a interpreta mesajul primit de la server ca un JSON value
+			-json_value_get_object(): pentru a interpreta JSON value ca JSON Object
+			-json_object_doset_string: folosit la taskul 3 pentru a introduce raspunsurile ghicitorilor in "data"
+
+		Task 4:
+			-Nimic special pentru acest pas
+
+			-Functii JSON:
+			-json_parse_string(): folosit pentru a interpreta mesajul primit de la server ca un JSON value
+			-json_value_get_object(): pentru a interpreta JSON value ca JSON Object
+
+		Task 5: 
+			-Avand in vedere ca aveam de facut doua operatii de trimitere-receptionare, abordarea mea a fost urmatoarea: am creat un obiect json nou in care mutat informatiile care existau in campul "data" al raspunsului, si le-am sters din obiectul initial (astfel obiectul din raspuns ramane fara un camp "data")
+			-Am descomus valoarea "api.openweathermap.org/data/2.5/weather" in "api.openweathermap.org" (server-ul unde trebuie sa trimit mesajul) si in "/data/2.5/weather" (url-ul propriu-zis)
+			-Am preluat o functie de la laboratorul DNS pentru a gasi adresa de IP a site-ului "api.openweathermap.org", pe care o folosesc mai departe la compunerea mesajului si la transimiterea acestuia
+			-Am creat mesajul folosind noul obiect (care contine informatiile pentru requestul de tip GET)
+			-Am trimis mesajul pe portul 80 (port rezervat pentru HTTP)
+			-Din mesajul pe care-l primesc, extrag obiectul si il introduc in obietul vechi (cel primit de la task 4) in campul "data" sub forma de string
+			-Compun un alt mesaj folosind obiectul vechi si il trimit catre server-ul din cerinta
+
+			-Functii JSON:
+			-json_value_init_object(): folosit ca sa creez doua obiecte JSON pentru task-ul 5 (un corp principal si un subcorp data)
+			-json_value_get_object(): pentru a interpreta JSON values ca JSON Objects
+			-json_object_doget_string(), json_object_get_string(): pentru a extrage informatie
+			-json_object_set_string(), json_object_doset_string(): folosit pentru a completa obiectul nou cu informatiile din "data"
+			-json_object_get_count(): numarul de perechi cheie-valoare exista in obiect
+			-json_get_name(): extrag numele unei perechi cu indicele dat
+			-json_object_get_value_at(): extrag valoarea de la o perechea cu indicele dat
+ 
