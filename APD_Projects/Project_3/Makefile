@@ -1,0 +1,5 @@
+build: tema3.c
+	mpicc tema3.c -o tema3
+
+clean:
+	rm tema3

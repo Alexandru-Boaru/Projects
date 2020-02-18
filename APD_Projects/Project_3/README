@@ -1,0 +1,109 @@
+BOARU ALEXANDRU
+331CB
+APD TEMA 3
+
+Modul de functionare al programului este urmatorul:
+
+Inceput: Citire
+-se face la inceput o verificare a argumentelor cu care e apelat programul
+-in cazul in care e vreo problema cu argumentele sau cu fisierele se trimite checkStatus 0 catre celelalte procese, semnificand faptul ca aparut o eroare si sa termine executia sarind ignorand restul instructiunilor
+-am copiat header-ul intr-un buffer pt mai tarziu si am citit valorile width si height
+-se copiaza filtrele (indici care reprezinta fiecare filtru in parte) intr-o lista
+-in cazul imaginilor PGM am folosit o matrice image, in cazul PNM am folosit trei matrici diferite: r,g,b
+-matricile sunt alocate dinamic
+-se copiaza toate liniile in matrice/matrici
+
+Distribuire date
+-se transmit in mod egal linii din matrice/matrici catre celelalte procese
+-(se poate sa fie toate egale daca numarul de linii nu se imparte exact la numarul de procese)
+-se trimit dimesiunile acestor fragmente (w si h) si apoi se trimit liniile proceselor corespunzatoare
+-ficare proces urmeaza sa calculeza separat fragmentele din imagine
+
+Aplicare filtre
+-se transmite lista de filtre catre toate procesele
+-se calculeaza matricile filtrelor (impartind valorile din exterior cu valorea din exterior
+-se creaza copi ale matricilor si se incepe aplicarea filtrelor
+-se aplica fiecare filtru asupra fiecarui pixel efectuand inmultirile corespunzatoare
+-se fac castari la float, dupa care fac inmultirile, se clampeaza valorile intre 0 si 255 si se casteaza valorile inapoi la unsigned cast
+-dupa fiecare filtru se face un schimb de linii intre procese. Acest lucru se realizeaza deoarece fiecare proces a primit doua linii in plus (superioara si inferioara) folosita pentru calculul liniilor din interior. Asa ca dupa fiecare filtru se trimit aceste linii pentru a fi actualizate
+-la final se elibereaza memoria pentru matricile intermediare
+
+Final:
+-se trimit toate fragmentele inapoi la procesul 0 unde sunt puse inapoi in ordine
+-se scrie header-ul in fisierul output
+-se copiaza datele finale in output
+-se elibereaza datele alocate dinamic si se inchid fisierele
+
+Mai jos sunt medii ale timpilor rezultati in urma testarii pe imaginile rorschach.pgm (cea mai mare imagine PGM) so landscape.pnm (cea mai mare imagine PNM)
+Pentru a afla timpii am rulat executabilul impreuna cu time
+Testarile sunt facute pentru fiecare filtru individual si la final pentru inlantuirea de filtre bssembssem
+Testarile sunt rulate cu 1,2,3 si 4 procese (au fost rulate de 3 ori pentru fiecare in parte pentru calculul mediilor)
+
+PGM
+rorschach
+smooth:
+	1	0.657s
+	2	0.385s
+	3	0.319s
+	4	0.353s
+
+blur:
+	1	0.469s
+	2	0.363s
+	3	0.316s
+	4	0.308s
+sharpen:
+	1	0.522s
+	2	0.356s
+	3	0.333s
+	4	0.317s
+mean:
+	1	0.537s
+	2	0.426s
+	3	0.362s
+	4	0.350s
+emboss:
+	1	0.483s
+	2	0.363s
+	3	0.334s
+	4	0.325s
+bssembssem:
+	1	2.686s
+	2	1.525s
+	3	1.170s
+	4	1.056s
+
+PNM
+landscape
+smooth:
+	1	1.870s
+	2	1.508s
+	3	1.420s
+	4	1.391s
+
+blur:
+	1	1.823s
+	2	1.533s
+	3	1.415s
+	4	1.351s
+sharpen:
+	1	1.795s
+	2	1.485s
+	3	1.382s
+	4	1.320s
+mean:
+	1	1.902s
+	2	1.503s
+	3	1.467s
+	4	1.384s
+emboss:
+	1	1.877s
+	2	1.556s
+	3	1.433s
+	4	1.344s
+bssembssem:
+	1	8.876s
+	2	5.133s
+	3	3.795s
+	4	3.236s
+
