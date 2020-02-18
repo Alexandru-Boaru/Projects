@@ -1,0 +1,143 @@
+BOARU ALEXANDRU 
+321CB
+TEMA 1 PP
+-HASKELL-
+
+Mentiuni:
+	-In implementarea acetei teme am folosit import-urile Data.Map in constructia tipurilor si datelor si Data.List pentru manipularea si inspectarea listelor
+	-Pe checker-ul local primesc punctaj maxim
+
+PUNCTUL A:
+	-Inainte de definirea lui ClassState, am definit cateva tipuri folosite in realizarea acestui tip de date
+	-ClassState are un constructor ClassState care are doi parametrii de tip VarSec si FuncSec
+	-VarSec este un map care are chei de tip SimbVar (numele unei variabile) si valori de tip TipVar (tipul variabilei)
+	-FuncSec este un map cu chei de tip SimbFunc (numele unei functii) si valori de tip lista de liste de string-uri
+		-semnificatia campului de valori: [[String]]: in lista cea mare introduc toate informatiile (nume functie, tip, parametrii) ale tuturor functiilor cu acelasi nume. Informatiile sunt tokenizate
+
+		-Exemplu: pentru functiile Double A ::f(Int) si Int A::f(Short), informatiile vor fi stocate la cheia "f" sub forma [["f","Double","Int"],["f","Int","Short"]]
+
+	-initEmptyClass: se foloseste constructorul ClassState cu parametrii Map.empty si Map.empty (initial ambele map-uri sunt goale)
+
+	-insertIntoClass: In functie de InstrType t primit ca parametru de apeleaza una din urmatoarele doua functii auxiliare:
+
+		-insertIntoVar: primeste un ClassState in care se adauga un nou element un map-ul pentru variabile
+
+		-insertIntoFunc: primeste un ClassState in care se adauga un nou element un map-ul pentru functii, daca exista deja o functie acel nume, atunci doar se modifica valoarea din map folosind Map.adjust
+
+	-getValues: In functie de InstrType t primit ca parametru de apeleaza una din urmatoarele doua functii
+
+		-getValuesVar: se ia o lista care contine toate cheile (folosind Map.keys), se traverseaza map-ul folosind aceste chei intr-un foldr si se returneaza toate variabilele in formatul cerut
+
+		-getValuesVar: se ia o lista care contine toate cheile (folosind Map.keys), se traverseaza map-ul folosind aceste chei intr-un foldr si se returneaza toate functiile in formatul cerut (se aplica foldr si pe valorile elementelor din map deoarece si ele sunt liste)
+
+PUNCTUL B:
+
+	-Inainte de definirea lui Program si Instruction, am definit cateva tipuri folosite in realizarea acestor tipuri de date
+
+	-tipul Class este un map care are drept chei numele claselor si drept valori perechi de tipul (nume clasa parinte,ClassState)
+
+	-Program are un singur constructor cu parametru un Class
+
+	-initEmptyProgram: initializeaza un Program care contine o singura clasa: Global
+
+	-getVars: intoarce toate valorile din program, folosindu-se de functia getValues pe ClassState-ul lui "Global"
+
+	-getClasses: intoarce toate numele claselor existente in Program, folosindu-se de functia Map.keys (deoarece Class este un map)
+
+	-getParentClass: intoarce parintele unei clase (se intoarce primul camp din perechea (ParentName,ClassState) al clasei)
+
+	-getFuncsForClass: intoarce toate functiile unei clase, folosindu-se getValues pe ClassState-ul acelei clase
+
+	-Instruction are cate un constructor pentru toate tipurile de instructiuni posibile:
+
+		-ClassDeclare: primeste un nume de clasa si eventual numele clasei pe care o extinde (daca nu se pune implicit "Global" ca clasa parinte)
+
+		-VarDeclare: primeste un nume de variabila si un tip returnat
+
+		-FuncDeclare: primeste un nume de clasa, un nume de functie, un tip returnat si o lista de parametrii 
+
+		-ExprDeclare: primeste un nume de expresie si un lista de string-uri (token-uri ce urmeaza a fi interpretate pentru a forma o expresie) (folosit la BONUS)
+
+	-Am creat doua functii: split' si split'' care au rolul de a impartii string-ul primit in tokeni ce pot fi interpretati
+
+		-split' primeste o lista de caractere (delimitatori) si string s ce urmeaza a fi spart in tokeni in functie de delimitatorii primiti
+
+		-split'' primeste string-ul initial din input si il sparge in linii, dupa care se aplica split' pe fiecare linie impreuna cu delimitatorii:" ,:;()=". De asemenea am folosit un filtru pentru a elimina string-urile nule "" ce pot aparea in momentul in care sunt gasiti doi delimitatori consecutivi in string
+
+			-pentru BONUS: am modificat split'' astfel incat sa tokenizeze o linie care incepe cu infer, aceasta urmand sa fie prelucrata mai tarziu de o alta functie
+
+		-parse: functia aplica makeInstruction pe fiecare linie ,astfel transformand liniile in instructiuni
+
+		-makeInstruction: primeste o lista de tokeni pe care o transforma intr-o instructiune
+
+			-pentru BONUS: am modificat acesta functie astefel incat sa trateze si pentru cazul "infer" aplicand specialParce (explicata mai tarziu)
+
+		-interpret: functia interpreteaza fiecare instructiune primita folosind pattern matching
+
+			-ClassDeclare: se insereaza un nou element in map-ul Class din Program
+
+			-VarDeclare: se adauga o noua variabila (daca exista tipul de return in program) folosind insertIntoClass din ClassState, altfel nu face nimic
+
+			-FuncDeclare: se adauga o noua functie intr-o clasa (daca clasa, tipul de return si toti parametrii sunt valizi) folosind insertIntoClass, altfel nu face nimic
+
+			-pentru BONUS: ExprDeclare: se converteste instructiunea intr-o expresie folosind instrToExpr (explicata mai tarziu) si se aplica infer aceasta; daca tipul returnat e valid, se adauga o variabila noua cu acel tip, altfel nu se intampla nimic
+
+PUNCTUL C:
+
+	-Am creat 3 functii auxiliare pentru a putea face inferenta expresiilor
+
+	-getVarsNames: functia intoarce toate numele variabilelor din Program
+
+	-getVarType: functia returneaza tipul unei variabile primite ca parametru
+
+	-searchForType: functie care cauta recursiv (pe lantul mostenirilor) functiile care au numele si parametrii acestora identici cu informatiile date si se intoarce Just o lista cu tipurile acestora (in cazul in care sunt mai multe functii cu acelasi nume si aceeasi parametrii). Daca s-a ajuns la capatul lantului de mosteniri (in "Global") si nu s-a gasit nicio functie care sa se potriveasca cerintelor de mai sus, atunci se intoarce Nothing
+
+	-infer: in urma unor verificari de conditii, se intorc ori Just tip ori Nothing
+
+		-in cazul in care se face inferenta pe un element Va, atunci se verifica numai daca exista numele acestei variabile in Program folosind getVarsNames si intoarce (daca poate) Just tipul acesteia (folosind getVarType)
+
+		-in cazul in care se face inferenta pe un element FCall, atunci:
+
+			-daca numele varibilei exista (se foloseste getVarsNames) merge mai departe
+
+			-daca niciunul din parametrii expresiei nu a intors Nothing (expresia se parcurge in adancime si se asteapta sa primeasca succesiv tipurile), atunci merge mai departe
+
+			-daca in urma cautarii functiei pe lantul de mostenire (folosind searchForType) nu s-a intors Nothing, atunci se intoarce tipul gasit
+
+			-daca vreuna din conditiile de mai sus nu se respecta, atunci se intoarce Nothing
+
+PUNCTUL BONUS:
+
+	-Am specificat mai devreme  faptul ca am modificat cateva functii astfel incat sa fie compatibile cu noile input-uri:
+
+		-in split'' se trateaza diferit cazul pentru infer: se intoarce string-ul nemodificat
+
+		-makeInstruction: se apeleaza specialParse si se intoarce rezultatul acesteia
+
+		-in interpret am adaugat caz pentru ExprDeclare
+
+	-specialParse: primeste un string (linie de cod pentru infer) si o tokenizeaza, dar pastreaza delimitatorii '.' '(' si ')' tot ca tokeni
+
+		-string-ul se filtreaza sa mai aiba spatii libere, apoi se cauta indicii unde exista delimitatorii ",.()" (folosind List.findIndices) si face o reunine impreuna cu lista cu toti delimitatorii incrementati. Lista lt rezultata se sorteaza crescator si apoi parcurg string-ul initial, spargand in tokeni la indicii din lista lt. La final elimin tokenii "," deoarece acestia nu mai sunt necesari
+
+		-Exemple: 
+			a.foo(b) -> ["a",".","foo","(","b",")"]
+			c.boo(d,a.foo(b)) -> ["c",".","boo","(","d","a",".","foo","(","b",")",")"]
+
+	-takeAux este o functie care primeste un string tokenizat (folosind specialParse) si intoarce numarul de token-uri care apartin unei apelari de functie. Acest lucru se realizeaza folosind doua contoare: 
+
+		a: se incrementeaza cand gaseste un token "(" si se decrementeaza cand gaseste un token ")"
+
+		acc: se incrementeaza la fiecare element in parte
+
+		-cand primul contor ajunge la 0 (inseamna ca s-a ajuns la capatul tokenurilor functiei) atunci se intoarce acc
+
+	-instrToExpr e o functie care primeste un string tokenizat si returneaza o expresie (prin cod practic se returneaza o lista de expresii, dar asta se intampla deoarece functia se apeleaza recursiv pe subexpresii; la final va fi o expresie mare ca element intr-o lista)
+
+		-lista e goala sau daca s-a gasit ")", inseamna ca s-a ajuns la capatul expresiei/subexpresiei curente si se returneaza lista de expresii de pana acum
+
+		-daca se identifica tokenii "." si "(" inseamna ca incepe o functie: se apeleaza instrToExpr recursiv pe subexpresiile functiei si totodata se apeleaza instrToExpr pentru ce vine dupa acea functie (aici e utilizat takeAux, pentru a afla cat de mare era functia curenta si pentru a elimina acei tokeni din lista (cu drop))
+
+		-daca nu e nici una de mai sus, ultima varianta e sa fie o variabila, asa ca se adauga Va nume_variabila la lista curenta si se apeleaza instrToExpr la ce urmeaza
+
+	-in interpret se aplica instrToExpr pe string-ul tokenizat, obtinandu-se o expresie, si apoi se apeleaza infer pe expresie
