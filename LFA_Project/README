@@ -1,0 +1,98 @@
+BOARU ALEXANDRU
+331CB
+TEMA 1 LFA
+
+	EVALUARE
+
+	Pentru partea de evaluare a expresiilor si pentru a verifica daca cuvintele date fac match pe expresii, am creat fisierul tema1.py
+
+	In acest fisier am realizat conversia RegEx -> DFA pas cu pas
+	
+	-regex_to_regular_expr: functia parcurge recursiv obiectul RegEx si adauga treptat elemente noi intr-un obiect de tip RegularExpression. Operatiile RegEx se transforma in operatii de baza:
+	--EMPTY_STRING, STAR, ALTERNATION si CONCATENATION raman la fel fiind operatii de baza (SYMBOL_SIMPLE devine SYMBOL, desi practic e acelasi lucru)
+	--SIMBOL_ANY devine o sub-expresie de reuniuni formata din toate simbolurile din alfabet (adica a|..|z|A|..|Z|0|..|9)
+	--SIMBOL_SET devine o sub-expresie de reuniuni formata din simbolurile specificate
+	--PLUS devine ee*
+	--MAYBE devine e|EMPTY_STRING
+	--RANGE devine:
+		-o insiruire de concatenari de n ori (a{n})
+		-o insiruire de concatenari de n ori terminat cu STAR (a{n,})
+		-o insiruire de reuniuni ale tuturor concatenarilor cu un numar de elemente mai mic sau egal cu n (a{,n})
+		-o insiruire de reuniuni ale tuturor concatenarilor cu un numar de elemente >= n si <= m (a{n,m})
+
+	-re_to_nfa: am preluat functia scrisa in laboratorul 3. Se parcurge obiectul in mod recursiv si adauga stari si tranzitii noi la fiecare pas conform algoritmului predat la curs/laborator
+	--EMPTY_STRING: se adauga o stare start si o stare final si se adauga o tranzitie intre start si final pe epsilon
+	--SYMBOL: se adauga o stare start si o stare final si se adauga o tranzitie intre start si final consumand simbolul primit
+	--STAR, fie e expresia. Se adauga doua stari noi care devin noile stari de inceput si de final al automatului si se adauga tranzitii:
+		intre noua stare start si e.start
+		intre e.final si noua stare final
+		intre fosta e.final si noua stare start
+		intre noua stare start si noua stare final
+	--CONCATENATION, fie e1 si e2 cele doua expresii concatenate. Se adauga o noua stare start si o noua stare final. Se adauga tranzitii noi:
+		intre noua stare start si e1.start
+		intre e1.final si e2.start
+		intre e2.final si noua stare final
+	--ALTERNATION, fie e1 si e2 cele doua expresii reunite. Se adauga o noua stare start si o noua stare final. Se adauga tranzitii noi:
+		intre noua stare start si e1.start
+		intre noua stare start si e2.start
+		intre e1.final si noua stare final
+		intre e2.final si noua stare final
+
+	-nfa_to_dfa: 
+		--stare start este adaugata in setul newfound_sets
+		--pentru fiecare stare din newfound_states verific tranzitiile pentru fiecare simbol din alfabet. Starile care reies din tranzitii sunt adaugate in next_state. Se adauga starile care reies din inchiderea epsilon (se foloseste epsilon_closure, care parcurge tranzitii pe epsilon si adauga starile gasite intr-un set)
+		--next_state se adauga in newfound_sets, se creaza o noua stare si se adauga o tranzitie pe simbolul c catre aceasta noua stare
+		--starile verificate se adauga in checked_sets
+		--toate set-urile de stari (corespunzatoare starilor DFA) care contin cel putin o stare finala din NFA sunt declarate ca fiind stari finale ale DFA-ului
+
+	-get_set: o functie care primeste un interval de simboluri si intoarce expresia corespunzatoare reuniunii dintre toate simbolurile din interval
+
+	-rename_states: redenumeste starile unui automat astfel incat cele doua nfa-uri date ca argumente sa nu aiba stari cu acelasi numar
+
+	-new_states: intoarce doua stari noi pentru un nfa
+
+
+	-regex_to_dfa: imbina toate functiile dinainte pentru a face conversia RegEx -> DFA
+
+	-check_word: face evaluarea unui cuvant primit pe un dfa primit ca parametru. Printeaza "True" daca face match sau "False" daca nu face match
+
+	In main se apeleaza o data regex_to_dfa pentru a crea DFA-ul si apoi se apeleaza check_word pentru fiecare cuvant din fisier
+
+	PARSARE
+
+	Pentru partea de parsare am folosit Antlr4. Am descarcat antlr-4.7.2-complete.jar pentru crearea fisierelor parser, lexer si listener ale gramaticii.
+	In fisierul Regex.g4 am scris gramatica folosita pentru RegEx
+	Am creat token-urile:
+		SYMBOL: pentru identificarea simbolurilor din alfabet
+		NUMBER: un fragment folosit de urmatoarele token-uri
+		R_FIXED: identifica range-urile de tip {n}
+		R_MIN: identifica range-urile de tip {n,}
+		R_MAX: identifica range-urile de tip {,m}
+		R_INTERVAL: identifica range-urile de tip {n,m}
+		WS: evita whitespace-urile
+
+	Am creat reguli pentru urmatorii nonterminali:
+		-r1: genereaza reuniunile
+		-r2: genereaza concatenarile
+		-r2: genereaza toate celelalte expresii posibile
+		-star: genereaza kleene star
+		-plus: genereaza plus
+		-maybe: genereaza maybe
+		-group: genereaza expresii aflate intre paranteze rotunde
+		-any_0: genereaza any
+		-set_0: genereaza seturi
+		-range_0: genereaza range-uri de toate tipurile (fixed, min_0, max_0, interval)
+
+	Am generat fisierele ruland comanda:
+		java -Xmx500M -cp antlr-4.7.2-complete.jar org.antlr.v4.Tool -Dlanguage=Python3 Regex.g4
+
+	Aceasta comanda se afla in Makefile
+	Am creat fisierul EvaluateListener.py pentru a crea obiectul RegEx parcaurgand arborele generat de gramatica
+	Am creat stack (o lista care are rol de stiva) si set ( folosit pentru generarea de SYMBOL_SET)
+	De fiecare data cand este identificata o anumita expresie, se adauga in stack simbolul acelelei expresii si se continua parsarea subexpresiilor. In momentul in care se parseaza SYMBOL_SIMPLE, SYMBOL_SET sau SYMBOL_ANY, se apeleaza functia clean.
+	Functia clean evalueaza elementele din stiva. Foloseste functa instr pentru a identifica ce expresie trebuie adaugata. Cand nu se mai poate evalua, se adauaga expresia intermediara pe stiva si se continua parsarea.
+	La final singurul element ramas in stiva este obiectul RegEx corespunzator expresiei primite ca input	
+	
+	Am importat in main lexer-ul, parser-ul, listener-ul si evaluatorul si parsat regex_string folosind aceste fisiere. In parsed_regex va fi obiectul final rezultat
+	
+
