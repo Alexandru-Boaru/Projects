@@ -1,0 +1,160 @@
+BOARU ALEXANDRU
+321CB
+
+TEMA 3-Programare Orientata pe Obiecte
+PowerBash
+
+Am utilizat FACTORY pentru a gestiona ce tip de fisier (Folder/TextFile) se creaza si pentru a gestiona ce tip de comenzi se creaza (Ls,Cd,etc.)
+
+Am utilizat SINGLETON pentru a permite crearea unui singure structuri de tip arbore (cu baza unica) si pentru a permite crearea unui singur CommandInvoker
+
+Am utilizat COMMAND pentru gestionarea si apelarea comenzilor
+
+Am utilizat COMPOSITE pentru a crea structura de tip arbore a sistemului de fisiere
+
+Am creat urmatoarele fisiere:
+
+MAIN: 
+
+-Am declarat un FileWriter out si un FileWriter err (ambele statice) si doua metode statice folosite pentru a scrie in fisiere din orice clasa ar fi nevoie 
+-In metoda main, declar un FileReader si un BufferReader, folosit pentru a citi comenzile din input file, linie cu linie. Se printeaza in fisierele out si err indexul comenzii curente, se foloseste CommsndFactory pentru a crea comanda necesara si apoi se executa folosind CommandInvoker
+-La final se inchid toate fiserele
+
+FILEFACTORY:
+
+-Clasa care creaza un obiect File de tip Folder sau File, depinde de cerinta
+
+FILE:
+
+-Clasa parinte a claselor Folder si TextFile
+-Are metoda care returneaza numele obiectului File (getName) si metoda care cloneaza obiectul File (clone)
+
+Clasele FOLDER si FILE sunt descrise prin campul name
+
+COMMANDFACTORY:
+
+-Se creaza un tip de comanda in functie de numele comenzii (citit dintr-un sir de string-uri dat ca argument)
+
+COMMANDINVOKER:
+
+-Aceasta clasa are rolul de apela executia comenzii primite ca argument
+
+COMMAND:
+
+-Interfata folosita pentru a implementa toate comenziile necesare
+-Are o metoda execute(), obligatorie pentru toate comenzile
+
+CDCOMMAND:
+
+-Este descrisa de:
+	virtual - folosit pentru parcurge sistemul de fisiere pana la nodul in care trebuie sa se execute comanda
+	path - sir de string-uri care descrie calea catre nodul cu pricina
+	-errmes - un mesaj de eroare care va printat in cazul in care nu exista nodul cautat
+-execute():
+	Se parcuge path si se actualizeaza nodul virtual pana se ajunge la nodul dorit (daca exista). Daca s-a gasit nodul, atunci acesta va fi setat ca fiind nodul cu directorul curent
+
+
+CPCOMMAND:
+
+-Este descrisa de:
+	virtual - folosit pentru parcurge sistemul de fisiere pana la nodul sursa
+	virtual1 - folosit pentru parcurge sistemul de fisiere pana la nodul destinatie
+	source - sir de string-uri care descrie calea catre nodul sursa
+	destination - sir de string-uri care descrie calea catre nodul destinatie
+	errmes1 -E1
+	errmes2 -E2
+	errmes3 -E3
+-execute():
+	Se parcurg source si destination pentru a fixa virtual si virtual1 (daca exista). Daca nu se gaseste nodul sursa, atunci se printeaza errmes1. Daca nu se gaseste nodul destinatie, se printeaza errmes2. Daca se afla deja un nod cu numele sursei la destinatiei, se printeaza errmes3. Altfel, adaug in lista de noduri copii a destinatiei o copie recursiva a nodului sursa (pentru a realiza copia folosesc metoda copy din clasa Tree)
+
+
+LSCOMMAND:
+
+-Este descrisa de:
+	virtual - folosit pentru parcurgerea sistemului de fisiere
+	path - sir de string-uri care definesc calea catre nodul cautat
+	checkR - 0-listare obisnuita; 1-listare recursiva
+	errmes - mesaj de eroare
+-execute(): Se parcuge path si se actualizeaza nodul virtual pana se ajunge la nodul dorit (daca exista). Daca s-a gasit nodul, acesta apeleaza metoda print (sau printR daca este recursiv), altfel printeaza errmes
+	 
+MKDIRCOMMAND:
+
+-Este descrisa de:
+	virtual - folosit pentru parcurgerea sistemului de fisiere
+	path - sir de string-uri care definesc calea catre nodul cautat
+	name - numele pe care noul obiect File il va avea
+	errmes1 - mesaj de eroare pentru cazul in care nu se gaseste nodul
+	errmes2_1,errmes2_2 - mesaj de eroare pentru cazul in care exista deja un nod cu numele name
+-execute(): Se parcuge path si se actualizeaza nodul virtual pana se ajunge la nodul dorit (daca exista). Daca nu se gaseste nodul se printeaza errmes1. Daca se gaseste nodul, dar acesta are deja un copil cu numele name, printeaza errmes2_1+PwdCommand(file,1)+errmes2_2 (folosesc PwdCommand pentru afisarea caii absolute). Daca nu exista eroare, atunci creez un nod nou folosind constructorul Tree(Tree parent, String name, int n), cu parametrii virtual, name, 0. La final adaug noul nod in lista de noduri a lui virtual
+	
+MVCOMMAND:
+
+-Este descrisa de:
+	virtual - folosit pentru parcurge sistemul de fisiere pana la nodul sursa
+	virtual1 - folosit pentru parcurge sistemul de fisiere pana la nodul destinatie
+	source - sir de string-uri care descrie calea catre nodul sursa
+	destination - sir de string-uri care descrie calea catre nodul destinatie
+	errmes1 -E1
+	errmes2 -E2
+	errmes3 -E3
+-execute(): Se parcurg source si destination pentru a fixa virtual si virtual1 (daca exista). Daca nu se gaseste nodul sursa, atunci se printeaza errmes1. Daca nu se gaseste nodul destinatie, se printeaza errmes2. Daca se afla deja un nod cu numele sursei la destinatiei, se printeaza errmes3. Altfel, mut in lista de noduri copii a destinatiei nodul sursa folosind metoda Move din clasa Tree
+
+PWDCOMMAND:
+
+-Este descris de:
+	virtual - folosit perntru parcugerea caii absolute
+	path - folosit pentru a stoca numele directoarelor din calea absoluta
+	n - 0-printare in output; 1-printare in err
+-execute(): Folosind virtual, parcurg lantul format de parintii nodurilor, pana se ajunge la baza arborelui (root). Toate numele de directoare se stocheaza in path. La final se printeaza sirul de directoare despartite prin "/"
+-Aceasta clasa e folosita atat la comanda Pwd, pentru printare in out, cat si la comenzi precum Mkdir, pentru printare in err
+
+RMCOMMAND:
+
+-Este descris de:
+	virtual - folosit pentru parcurgerea sistemului de fisiere
+	path - sir de string-uri care definesc calea catre nodul cautat
+	errmes - mesaj de eroare in cazul in care nu se gaseste nodul cautat
+-execute(): Se parcuge path si se actualizeaza nodul virtual pana se ajunge la nodul dorit (daca exista). Daca nu se gaseste nodul se printeaza errmes. Daca directorul curent se afla in subarborele nodului dorit, atunci se iese din metoda fara a modifica ceva. Altfel, daca nu exista eroare, se sterge ,din lista de noduri a parintelui, nodul cu pricina (folosind remove)
+
+TOUCHCOMMAND:
+
+-Este descrisa de:
+	virtual - folosit pentru parcurgerea sistemului de fisiere
+	path - sir de string-uri care definesc calea catre nodul cautat
+	name - numele pe care noul obiect File il va avea
+	errmes1 - mesaj de eroare pentru cazul in care nu se gaseste nodul
+	errmes2_1,errmes2_2 - mesaj de eroare pentru cazul in care exista deja un nod cu numele name
+-execute(): Se parcuge path si se actualizeaza nodul virtual pana se ajunge la nodul dorit (daca exista). Daca nu se gaseste nodul se printeaza errmes1. Daca se gaseste nodul, dar acesta are deja un copil cu numele name, printeaza errmes2_1+PwdCommand(file,1)+errmes2_2 (folosesc PwdCommand pentru afisarea caii absolute). Daca nu exista eroare, atunci creez un nod nou folosind constructorul Tree(Tree parent, String name, int n), cu parametrii virtual, name, 1. La final adaug noul nod in lista de noduri a lui virtual
+
+SORTLEXICOGRAPHICALLY:
+
+-Contine o metoda folosita pentru sortarea lexicografica a nodurilor copii ai nodului care apeleaza metoda
+
+TREE:
+
+-Clasa este folosita pentru a crea o structura de tip arbore a sistemului de fisiere
+-Arborele este alcatui din noduri care sunt descrise de:
+	file - un obiect File de tip Folder/TextFile
+	parent - parintele nodului
+	nodelist - lista de noduri copii (daca nodul contine un File de tip TextFile, atunci lista este goala)
+	current - variabila statica care defineste directorul curent
+-Constructori:
+	Constructorul default nu poate fi folosit, deoarece se doreste crearea unui singur sistem de fisiere si cu o baza unica (root). Pentru a declara sistemul de fisiere, folosesc metoda getTree, care initializeaza nodul root (parintele nodului root este tot root)
+	Tree(Tree parent, String name, int type) - constructor folosit de comenzile Mkdir si Touch
+	Tree(Tree parent, File file, ArrayList<Tree> nodelist) - constructor folosit de metoda copy
+
+-Metode de gestiune a nodurilor:
+	-add(Tree t): adauga t in lista de noduri copii a nodului care apeleaza metoda
+	-remove(Tree t): elimina t din lista de noduri copii a nodului care apeleaza metoda
+	-remove(String name): cauta nodul care contine directorul cu numele name si elimina continutul lui
+	-getNodeList : returneaza lista de noduri copii
+	-getCurrent : returneaza nodul cu directorul curent
+	-setCurrent: seteaza nodul care apeleaza sa devina noul director curent
+	-getParent: returneaza nodul parinte
+	-setParent: seteaza argumentul primit ca noul parinte al nodului
+	-getFile: returneaza obiectul File continut in nod
+	-copy: functie care copiaza recursiv continutul unui nod (cloneaza listele de noduri)
+	-print: printeaza calea absoluta a nodului, ordoneaza nodurile copii in functie numele acestora (folosind metoda din clasa SortLexicographically) si le printeaza caile absolute
+	-printR: apeleaza in mod recursiv print (pentru fiecare nod care contine Folder)
+	-Move: metoda care muta recursiv continutul unui nod la o noua destinatie (modificand parintii acestora) 
+

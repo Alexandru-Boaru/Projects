@@ -1,0 +1,112 @@
+BOARU ALEXANDRU
+321CB
+
+TEMA 2-Programare Orientata pe Obiecte
+Lost in NoSql
+
+In realizarea temei am creat urmatoarele fisiere:
+ 
+TEMA2:
+
+Aici am creat functia main a programului
+Am creat un FileReader in pentru fisierul de input (cu numele primit ca argument din args[0]) si un FileWriter out pentru fisierul de output (cu numele primit ca argument  args[0]+"_out")
+Am creat un BufferReader br pe care l-am folosit pentru a citi linie cu linie informatiile din in
+Am creat un vector de string-uri parts folosit pentru a salva informatiile de pe o linie ca token-uri
+Am declarat baza de tip LNoSQL si un ArrayList ent pentru entitati
+Am citit toate liniile din fisier si in functie de primul cuvant al comenzi am executat una din operatiile necesare
+La final am inchis in si out
+
+ENTITATE:
+
+Am creat o clasa numita Entitate folosita la crearea unor entitati "sablon" utilizate dupa la crearea instantelor 
+
+Campurile:
+-numeEnt (numele entitatii)
+-RF (factorul de replicare)
+-nrAtr (numarul de atribute)
+-atr (ArrayList care urmeaza sa fie populat cu numele atributelor si tipurile acestora in ordinea data din linie)
+- timestamp (timestamp-ul de la ultima modificare)
+
+Metode:
+Constructorul primeste parts care contine toate informatiile necesare pentru entitate
+
+clone: folosit la replicarea instantelor care urmeaza sa fie introduse in noduri
+
+Update: actualizeaza timestamp-ul instantei in urma unei modificari
+
+
+NODE:
+
+Am creat o clasa numita Node folosita pentru a stoca instantele unei entitati
+
+Campurile:
+-numarNod (numarul nodului)
+-contorNod (contor care retine numarul curent de instante din nod
+-capNod (capacitatea maxima a nodului)
+-nodeList (ArrayList care contine instantele nodului)
+
+Metode:
+Constructorul primeste numarul nodului si capacitatea nodului
+
+Insert: folosita la introducerea unei instante la inceputul listei. Metoda este folosita pentru a pastra lista ordonata dupa fiecare inserare si actualizare
+
+Decrement: folosita pentru a decrementa contorul nodului
+
+Full: folosita pentru a verifica daca nodul este plin
+
+LNOSQL:
+
+Am creat o clasa numita LNoSQL cu rolul de baza de date care contine mai multe noduri
+
+Campurile:
+-name (numele bazei de date)
+-nrNod (numarul de noduri al bazei)
+-capNod (capacitatea maxima a unui nod)
+-DBList (ArrayList care contine nodurile bazei de date)
+
+Metodele:
+
+Constructorul primeste  ca parametrii numele bazei de date, numarul de noduri si capacitatea maxima a unui nod
+
+Insert: 
+-primeste parametri ca parametrii pe parts si lista de entitati "sablon"
+-cauta in lista de entitati forma entitatii dorite si este replicata intr-o noua instanta salvata in temp
+-in temp se modifica lista de atribute astfel incat locurile unde sunt salvate tipurile atributelor sunt inlocuite cu informatiile parsate in functie de tipul cerut
+-caut prin noduri si caut nodul cu cel mai mare numar de instante ( daca este chiar capacitatea maxima atunci decrementez max-ul )
+-pentru bonus, verific daca numarul de noduri care nu sunt pline este mai mic decat factorul de replicare al instantei, caz in care adaug cate noduri mai am nevoie 
+-cand fac inserarea propiu zisa, clonez instanta, ii actualizez timestamp-ul si caut nodul in care sa inserez cu ajutorul lui max; cand numai sunt noduri cu contorul egal cu max, decrementez max pana gasesc un nod cu contorul egal cu noul max
+
+CheckFull: metoda folosita pentru a afla numarul de noduri pline din baza
+
+Delete:
+-primeste parametri ca parametrii pe parts, lista de entitati "sablon", fisierul de output
+-folosesc lista de entitati "sablon" pentru a afla ce tip este cheia primara pe care o caut
+-caut prin listele noduri instantele care au numele entitati sablon si cheia pe data si le sterg cu remove
+-daca nu este stearsa nici o instanta, se printeaza mesajul corespunzator
+
+Update:
+-primeste parametri ca parametrii pe parts si lista de entitati "sablon"
+-folosesc lista de entitati "sablon" pentru a afla ce tip este cheia primara pe care o caut si pentru a pentru a retine tipul atributelor din entitate
+-caut prin listele nodurilor instantele care trebuiesc modificate si le adaug noile informatii parsate corespunzator
+-dupa modificare, actualizez timestamp=ul si mut instanta respectiva la inceputul listei
+
+Get:
+
+-primeste parametri ca parametrii pe parts, lista de entitati "sablon", fisierul de output
+-folosesc lista de entitati "sablon" pentru a afla ce tip este cheia primara pe care o caut si pentru a pentru a retine tipul atributelor din entitate
+-caut prin listele nodurilor (cu ajutorul numelui entitatii si al cheii primare pana gasesc instanta cautata
+-printez nodul in care se gaseste si apoi printez toate atributele (nume si valoare)
+-daca nu gasesc nicio instanta cu datele date sau cheia primara nu este valida printez mesajul corespunzator
+
+SnapshotDB:
+
+-printez numarul nodului pentru fiecare nod
+-printez informatiile fiecarei instante din fiecare nod
+-daca baza de date e goala printez mesajul corespunzator
+
+CleanUp:
+-primeste parametru timestamp-ul in functie de care trebuie sa sterg instantele vechi
+-daca gasesc o instanta cu timestamp mai vechi decat timestamp-ul referinta, sterg instanta
+
+
+
