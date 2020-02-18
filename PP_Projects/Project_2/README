@@ -1,0 +1,88 @@
+BOARU ALEXANDRU
+321CB
+TEMA 2 PP - PROLOG
+
+
+	Initial pentru implementarea temei ma gandisem sa implementez un algoritm Dijkstra pentru calcularea costurilor minime de la un nod sursa la toate celalte noduri, si astfel gasind muchiile unui arbore minim. Totusi aceasta interpretare mi s-a parut destul de dificila (aveam de implementat foarte multe predicate). De aceea am decis sa interpretez problema folosind algoritmul Prim modificat astfel incat in procesul de alegere a muchiilor adiacente sa se tina cont si de costul drumurilor care merg din root pana in nodul respectiv. Intr-un final iese un algoritm care este ceva intre Dijkstra si Prim.
+	Ceea ce mi-a placut la aceasta tema este faptul ca odata cu scrierea temei am reusit sa inteleg mai bine modul de functionare a limbajului Prolog si sa inteleg utilitatea anumitor comenzi specifice acestui limbaj (de exmplu setof)
+	
+	stp: 
+		-predicatul main al acestui program
+		-acesta apeleaza minPrioritatea pentru gasirea nodului de prioritate minima
+		-root-ul gasit este asociat cu un cost de 0 si este introdus intr-o lista ce urmeaza sa joace rol de lista de noduri vizitate
+		-se apeleaza createTree care va intoarce lista cu muchiile continute in arbore
+
+	member:
+		-predicat care verifica existenta unui element intr-o lista (prin parcurgerea listei)
+	
+	node:
+		-apeleaza member pentru a cauta un nod intr-o lista de noduri
+	edge:
+		-apeleaza member pentru a cauta o muchie intr-o lista de muchii (se ia in considerare faptul ca muchiile sunt bidirectionale)
+	
+	minPrioritate:
+		-parcurge recursiv lista de noduri primita din input si cauta nodul cu prioritate minima. Dupa ce se ajunge la final, se intoarce minimul
+
+	createTree:
+		-predicatul care primeste lista de noduri, lista de muchii, lista de noduri vizitate si lista de muchii a arborelui la un anumit pas
+		-daca lungimea listei de noduri (Nodes) este egala cu lungime listei de noduri vizitate (Visited) atunci inseamna ca au fost vizitate toate nodurile si s-a completatat tot arborele. Se returneaza FullVisited si FullTree
+		-alfel se apeleaza listaMin care returneza lista M cu muchiile selectate astfel incat sa respecte conditiile de cost minim si de nod cu prioritate minima
+		-lista M este folosita de predicatul updateTree pentru adauga nodurile si muchiile noi in listele de noduri vizitate (Visited) si de muchii ale arborelui (Tree)
+		-se obtin NewVisited si NewTree care sunt folosite apoi in apelarea recursiva a predicatului createTree
+
+	updateTree:
+		-pentru o muchie de forma (Ns,Nd,C), se cauta prioritate nodului Nd si se adauga muchia (Ns,Nd) in Tree si se adauga nodul (Nd,P,C) in Visited
+
+	listaMin:
+		-se apeleaza listaMuchii care returneaza o lista L care contine toate muchiile adiacente nodurilor vizitate
+		-se apeleaza minMuchie pentru a pastra numai muchiile cu un cost minim si se returneaza Maux
+		-se apeleaza filterMinPriority care pastreaza numai muchiile cu noduri cu prioritate mica (in cazul in care exista doua sau mai multe muchii indreptate spre acelasi nod si care au acelasi cost)
+		-la final se returneaza lista de muchii rezultata
+
+	filterMinPriority:
+		-pentru fiecare muchie (N1,N2,C) se verifica daca nu exita deja o alta muchie indreptata spre N2 in Acc
+		-daca nu mai exista o alta cale, atunci se adauga muchia in lista Acc
+		-daca se mai gaseste o cale, atunci se verifica care prioritatile muchiilor N1 si Naux este mai mica
+		-daca prioritatea lui N1 este mai mica, atunci se apeleaza swap pentru a inlocui calea din Naux cu cea N1
+		-daca prioritatea lui N1 este mai mare, atunci calea din N1 va fi ignorata
+		-dupa ce se termina de parcurs lista, se returneaza lista acumulata in Acc
+
+	swap:
+		-predicat care se ocupa cu inlocuirea unui element X dintr-o lista L cu elementul Y, prin iterarea listei L
+		-in momentul in care se gaseste X, se adauga Y in lista cea noua
+		-in rest se adauga elementele asa cum sunt si se returneaza noua lista R
+
+	minMuchie:
+		-se cauta muchiile cu cost minim dintr-o lista de muchii primita
+		-daca se gaseste o muchie cu cost mai mic, atunci se sterge lista anterioara si se pune o lista noua care contine noua muchie cu cost minim
+		-daca se gaseste o muchie de cost mai mare, aceasta este ignorata
+		-daca se gaseste o muchie de cost egal, atunci aceasta e adaugata in lista de muchii minime
+
+	listaMuchii:
+		-foloseste setof pentru a gasi toate muchiile de forma (N1,N2,C) care satisfac costMuchie
+		-toate aceste muchii sunt stocate in L
+		-se returneaza L
+
+	costMuchie:
+		-se cauta muchii care indeplinesc conditiile urmatoare:
+			-X (primul nod) sa fie prezent in lista nodurilor vizitate
+			-Y sa nu fie deja in lista nodurilor vizitate
+		-se returneaza o muchie de forma (X,Y,C), unde C este suma dintre costul drumului de la root la nodul X si costul muchiei (X,Y)
+
+	drum: 
+		-predicatul prin care se cauta drumul dintre un nod sursa Src si un nod destinatie Dst
+		-se apeleaza stp folosind lista de noduri si lista de muchii si se obtine Root si Edges
+		-se apeleaza path folosind Src, Dst si Edges si se obtine Path
+
+	path:
+		-apeleaza searchPath care returneaza drumul dintre Src si Dst, dar inversat, asa ca se apeleaza reverse pentru a aduce Path la forma dorita
+	
+	searchPath:
+		-la fiecare pas se verifica daca exista o muchie intre Src si Dst in Tree (lista cu muchii rezultata din stp), caz in care Path-ul este returnat ca fiind [Dst|Visited]
+		-daca nu exista muchia (Src, Dst), atunci se cauta un alt nod N, vecin al lui Src (si diferit de Dst) si care nu a fost deja parcurs
+		-se adauga N in lista de noduri visitate (Visited)
+		-se apeleaza searchPath considerand N ca fiind noul nod sursa
+		-practic se realizeaza o parcurgere DFS a arborelui (plecand din Src)
+
+	reverse:
+		-copiaza recursiv elementele dintr-o lista in alta lista (Rev) in ordine inversa
