@@ -1,0 +1,22 @@
+Project 1: Fourier and Fast Fourier Transform using threads
+  Written in C, must be compiled with:
+    gcc homeworkFT.c -o homeworkFT -lm -pthread
+    gcc homeworkFFT.c -o homeworkFFT -lm -pthread
+  It works for 1, 2 or 4 threads
+  To run:
+    ./homeworkFT inputValues.txt outputValues.txt numThreads
+    ./homeworkFFT inputValues.txt outputValues.txt numThreads
+
+Project 2: Space Explorers and Federation HQ (bidirectional communication using threads)
+  Written in Java (using Netbeans IDE)
+  To run:
+     java Homework <wormHoles> <hashCount> <federationHQCount> <spaceExplorerCount>
+    
+
+Project 3: Image Processing with MPI
+  Written in C
+  To compile use mpicc
+  To run:
+     mpirun -np N ./tema3 image_in.pnm image_out.pnm filter1 filter2 ... filterX
+
+  
