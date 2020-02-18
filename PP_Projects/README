@@ -1,3 +1,4 @@
-Project 1: Haskell Parser
+Project 1: Parser written in haskell
+  Can parse variables, classes, functions and expressions
 
 Project 2: Prolog
