@@ -1,0 +1,62 @@
+/*BOARU Alexandru-311CB */
+
+
+TEMA SD 3
+
+In tlista.h:
+-Am definit o structura pentru liste generice ce contine un camp pentru informantii si un camp pointer catre celula urmatoare si o structura pentru variabile care contine un camp pentru numele variabilei si un camp pentru valoarea variabilei
+
+In tarb.h:
+-Am definit o structura de tip arbore care contine un camp char* info pentru salvarea informatiei si doua campuri care duc catre subarborele stang si cel drept
+
+In main.c:
+
+In functia main:
+-Am initializat o lista s pe care o folosesc pentru a salva informatii despre variabilele date in fisierul input
+-Am deschis fisierul de input in pointerul in
+-Am salvat in N numarul de variabile
+-Folosind o functie for am memorat informatiile legate de variabila in celula alocata aux pe care la final o adaug in lista
+-Am salvat in M numarul de expresii
+-Am deschis fisierul de output in pointerul out
+-Intr-o functie de tip for, am folosit un pointer de caractere exp pentru salva expresia curenta
+-Initializez un arbore arb si creez nodurile in acesta folosind functia ConstrNew
+-Folosesc functia Rezolva pentru a calcula expresia din arbore si salvez rezultatul in r. Daca nu a aparut erori, printez valoarea r
+-Folosesc functia DistrArb pentru a distruge arborele curent
+-La final folosesc DistrugeL pentru a distruge lista de variabile, inchid fisierele in si out si eliberez memoria alocata pentru exp
+
+In DistrugeL:
+-Folosind o celula auxiliara parcurg lista data si eliberez pe rand memoria alocata pentru informatia din celula si memoria alocata pentru celula
+
+In distruge:
+-Functie auxiliara recursiva folosita pentru a distruge informatia din fiecare nod si pentru a distruge fiecare nod
+
+In DistrArb:
+-Functie ce apeleaza distruge si intoarce NULL odata ce s-a eliberat tot arborele
+
+In ConstrFR:
+-Functie ce aloca memorie pentru un nod si pentru informatia din acesta si salveaza informatia primita
+
+In Inserare:
+-Functie recursiva pentru inserarea de noduri in arbore
+-Folosind functia strtok, parcurg fiecare operator si oeprand din expresia data
+-Cand se ajunge la capatul expresiei se iese din functie
+-Folosesc ConstrFr pentru a construi nodul cu informatia data
+-Daca operatorul curent este "+", "-", "*", "/" sau "^" atunci se vor construi un subarbore stang si unul drept. Daca operatorul este "sqrt" se va construi doar un subarbore stang
+
+In Rezolvare:
+-Folosesc o parcurgere de tip RSD pentru a calcula expresia din arbore
+-Folosesc r pentru a retine valoarea la fiecare operatie
+-Folosesc x pentru a salva valoarea din subarborele stange si y pentru subarborele drept
+-Folosesc strcmp pentru a afla ce reprezinta informatia din radacina
+-In cazul in care se ajunge la un operand de tip numeric, folosesc sscanf pentru a converti valoarea in int si o salvez in r
+-In cazul in radacina se afla un operator calculez operatia respectiva folosind x si y
+-Daca la impartire y este 0 sau daca la radical x este numar negativ, intorc eroarea "Invalid expression"
+-In cazul in care operandul este de tip valoare, parcurg lista de valori pana o gasesc si intorc valoarea acesteia. Daca operandul nu se gaseste in lista, intorc eroarea "Variable %s undeclared"
+
+In ConstrNew:
+-Functie pentru constructia noului arbore
+-Folosesc strtok pentru a salva operatori si operanzii din exp in p
+-Apelez functia Inserare pentru a incepe sa inserez nodurile in arbore
+
+PUNCTAJ:85/85
+

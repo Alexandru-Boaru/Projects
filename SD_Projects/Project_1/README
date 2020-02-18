@@ -1,0 +1,54 @@
+/*BOARU Alexandru-311CB */
+
+
+TEMA SD 1
+In main
+-Am initializat niste pointeri intermediari pentru citirea datelor din fisiere
+-Am deschis in *in fisierul care contine configuratia salii
+-Am citit citit pe rand toate datele de intrare cu ajutorul functiei fprintf si i-am inserat intr-o lista s care contine N mese, fiecare cu nr propriu de jucatori
+-Am inchis fisierul care contine configuratia salii si am deschis fisierul cu instructiuni si fisierul cu output
+-Am citit toate instructiunile din fisier si am apelat functiile respective
+-La final, am inchis toate fisierele si am distrus listele cu jucatori, lista de mese si sala
+
+In PrintM:
+-Verific daca sala e goala. Daca nu este goala, printez numele meselor apelez printJ pentru printrarea tuturor jucatorilor de la fiecare masa
+
+In PrintJ:
+-Printeaza toti jucatorii de la masa respectiva
+
+In Noroc:
+-Caut in lista mese si apoi prin listele de jucatori pana gasesc jucatorul respectiv
+-Maresc numarul de maini al jucatorului cu valoarea data
+-Printez mesaje de eroare daca e necesar
+
+In Ghinion:
+-Caut in lista mese si apoi prin listele de jucatori pana gasesc jucatorul respectiv
+-Scad numarul de maini al jucatorului cu valoarea data
+-Printez mesaje de eroare daca e necesar
+
+In Tura:
+-Caut in lista de mese pana gasesc masa ceruta
+-Folosindu-ma de o celula auxiliara, fac rotatia celulelor din lista de jucatori in jurul santinelei
+-Am parcurs lista din nou pentru a decrementa numarul de maini pentru fiecare jucator si il elimin daca este cazul daca ramane fara numar de maini
+-In cazul in care nu au mai ramas jucatori la masa respectiva, aceasta va fi eliminata din lista
+
+In Tura_completa:
+-Folosindu-ma de o celula auxiliara, fac rotatia celulelor din lista de jucatori in jurul santinelei, la toate mesele din sala
+-Parcurg fiecare lista de jucatori din nou pentru a decrementa numarul de maini pentru fiecare jucator si il elimin daca este cazul daca ramane fara numar de maini
+-In cazul in care nu au mai ramas jucatori la vreo masa, aceasta va fi eliminata din lista
+
+In Clasament:
+-Am creat o lista noua
+-Cu ajutorul unei celule auxiliare, am copiat informatiile din fiecare celula si cu ajutorul functiei InsOrd le-am inserat in ordinea ceruta
+-La final, am parcurs lista nou creata pentru a printa clasamentul
+
+In Inchide:
+-Am creat o celula pentru a parcurge lista de mese si pentru a memora locul in care se afla masa ceruta
+-Dupa ce am verificat daca exista suficiente locuri in sala, am creat o alta celula pentru a parcurge mesele in ordine si pentru a muta jucatorii la locurile disponibile
+-Dupa ce s-au mutat toti jucatorii, am sters masa din lista. Daca nu exista suficiente locuri, atunci masa nu se inchide
+
+In Distruge:
+-Am parcurs lista de mese si listele de jucatori, pentru a sterge informatia si celulele. La final am distrus si celula pentru sala
+
+PUNCTAJ:77/85
+

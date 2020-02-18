@@ -1,0 +1,81 @@
+/*BOARU Alexandru-311CB */
+
+
+TEMA SD 2
+
+Fisierul "tlista" contine formatul structurii de tip lista simplu inlantuita
+
+Fisierul "info.h" contine structurile pentru sistemul de jocuri Hanoi, pentru jocurile Hanoi, pentru turnurile Hanoi si pentru cozile de comenzi
+
+Fisierul "TCoada-V.h" contine structura de tip coada si cateva macrouri pentru cozi
+
+Fisierul "TStiva-V.h" contine structura de tip stiva si cateva macrouri pentru stive
+
+Fisierul "main.c" contine functiile
+
+In main
+-Am initializat niste pointeri intermediari pentru citirea datelor din fisiere
+-Am deschis in *in fisierul care contine instructiunile
+-Am citit toate instructiunile din fisier si am apelat functiile respective
+-La final, am inchis toate fisierele si am distrus sistemele de joc Hanoi:liste, stive, cozi
+
+In InitS:
+-Initializez o noua stiva care contine elemente care au dimensiunea corespunzatoare
+
+In InitQ:
+-Initializez o noua coada care contine elemente care au dimensiunea corespunzatoare
+
+In distrS:
+-Distrug elementele continute de stiva si apoi distrug stiva
+
+In distrQ:
+-Distrug elementele continute de coada si apoi distrug coada
+
+In pop:
+-Daca stiva nu e goala, extrag elementul din varf, si actualizez noua adresa pentru varful stivei 
+
+In push:
+-Pun un element in varful stivei
+
+In rastoarna:
+-Rastorn elementele unei stive sursa intr-o stiva destinatie folosinf succesiv pop si push
+
+In extrQ:
+-Daca coada nu e goala, extrag elementul din fata cozii, si actualizez noua adresa pentru inceputul cozii 
+
+In intrQ:
+-Pun un element la capatul cozii
+
+In concatQ:
+-Mut elementele unei cozi sursa intr-o coada destinatie folosind succesiv extrQ si intrQ
+
+In AddH:
+-Functie pentru adaugarea unui noi sistem Hanoi de o anumita culoare
+
+In InsOrd:
+-Folosind functia pop, caut primul disc din stiva care e mai mare decat noul disc. Atunci inserez noul disc si rastorn inapoi discurile in turn
+
+In add:
+-Caut sistemul Hanoi care se potriveste culorii date. Daca nu exista, creez un nou sitem Hanoi cu acea culoare
+-Dupa ce gasesc sau creez sistemul, folosesc InsOrd pentru a insera discul cel nou in pozitia potrivita
+
+In towerofHanoi:
+-Folosind aceasta functie recursiva pot determina urmatoarele miscari ale jocului
+-La fiecare miscare, creez o comanda care contine string de tipul "from->to" si il salvez in coada de comenzi a sistemului Hanoi
+
+In play:
+-Caut sistemul Hanoi care se potriveste culorii date. Daca este prima oara cand folosesc play pe acel sistem, apelez towerofHanoi pentru a crea coada de comenzi
+-Citind numarul de comenzi cerute, folosesc pop si push pentru a muta discurile in turnurile corespunzatoare
+
+In show:
+-Caut sistemul Hanoi care se potriveste culorii date. Daca sistemul nu exista, il printez ca fiind gol
+-Folosind o stiva auxiliara si functiile de pop si push, parcurg toate turnurile sistemului si afisez in fisierul output dimensiunile discurilor
+-La final stivele se intorc la starea lor initiala
+
+In show_moves:
+-Asemanator ca la show, doar ca de data acesta trebuie sa ma asigur ca am coada de comenzi(daca nu, o creez).
+-Folosind o coada auxiliara si functiile de extrQ si intrQ, parcurg coada de comenzi si afisez in fisierul output comenzile respective
+
+
+PUNCTAJ:85/85
+
