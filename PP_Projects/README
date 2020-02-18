@@ -1,4 +1,6 @@
 Project 1: Parser written in haskell
   Can parse variables, classes, functions and expressions
+  It can interpret functions in order to store new value to the variable
 
-Project 2: Prolog
+Project 2: Spanning Tree Protocol
+  Written in Prolog
