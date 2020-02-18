@@ -1,0 +1,109 @@
+BOARU ALEXANDRU
+321CB
+TEMA PA 1
+GREEDY SI PROGRAMARE DINAMICA
+
+	Inainte de  a trece la partea de cod a temei, m-am documentat folosind articole de pe internet si materialele puse la dispozitie de pe Moodle. De asemenea am studiat algoritmi ale unor probleme mai cunoscute care pareau ca au elemente comune cu exercitiile primite
+	Mi-am creat un schelet de baza pentru fiecare problema folosind unul din demo-urile disponibile de la lab. Scheletul se ocupa de citirea datelor din fisierul de intrare si cu trecerea raspunsului in fisierul de output.
+	Am rezolvat problemele in Java
+	Fisierul Makefile folosit este cel primit odata cu checker-ul
+
+PROBLEMA 1
+
+	Dupa ce am citit cerinta primei probleme am realizat faptul ca se poate rezolva folosind un algoritm greedy. Am citit toate numerele si le-am stocat intr-un ArrayList. Am apelat Collections.sort(l,Collections.reverseOrder()) pentru a sorta toate elementele in ordine descrescatoare. Am creat doua variabile Tuzgu si Ritza care reprezinta punctajul curent al jucatorilor. Parcurg ArrayList-ul sortat si adaug in fiecare tura (in functie de randul cui este) numarul cel mai mare la punctajul jucatorului respectiv.
+ 
+	Deoarece ambii juactori elimina punctele in mod optim, este clar faptul ca fiecare vrea sa elimine numarul cel mai mare posibil din cele ramase.
+
+	La final se obtin punctajele maxime posibile ale jucatorilor si se trece in fisierul de output diferenta dintre ele (se returneaza Tuzgu-Ritza)
+
+PROBLEMA 2
+
+	In timpul cercetarii pentru acesta problema am ajuns la concluzia ca aceasta era cea mai dificila dintre toate. Dificultatea era cauzata de faptul ca nu gaseam un mod cat mai optim de a pastra un avantaj cat mai mare pentru toate variantele posibile.
+
+	Mai intai am incercat ideea urmatoare: sa elimin cate un element pe parcurs; la fiecare iteratie prin lista scoteam elementul care din care rezulta avantajul cel mai mare la acel pas. Putin timp dupa am realizat ca nu merge astfel, deoarece scoaterea unui element putea fi optima pentru un anumit ca k, dar nu necesar pentru cazurile cu k mai mare.
+
+	Pentru a doua metoda m-am gandit la urmatorul lucru: in loc sa caut ce k elemente sa scot din lista, sa incerc sa introduc intr-o lista goala acele n-k elemente care dau avantajul maxim. Am facut diferentele dintre elementele consecutive si am realizat ca puteam gasi avantaj optim urmand urmatoarele reguli:
+
+-in lista intra obligatoriu elementul cel mai mare
+-la trecerea de la tura lui Ritza la a lui Tuzga cautam elementele care aveau diferenta minima si le adaugam in lista (deci la fiecare iteratie as fi introdus cate 2 elemente). Daca n-k era par, atunci la final mai adaugam obligatoriu si ultimul element (cel mai mic)
+-odata ce gaseam o diferenta minima nu permiteam sa aleg diferentele din stanga si dreapta lui, altfel ar fi insemnat sa introduc anumite elemente de mai multe ori decat ar fi trebuit
+-tocmai conditia de mai sus se contrazicea cu optimul cautat, deoarece daca as fi avut de exemplu diferentele : 100 5 1 4, atunci conform regulilor mele as fi ales 1 si apoi 100 (pentru ca 5 si 4 erau vecinii lui 1) ceea ce nu duce la un avantaj optim (ar fi trebui sa fie 5 si 4)
+
+	La final am reusit sa gasesc o metoda cu programare dinamica prin care am rezolvat problema:
+-declar o matrice dp de dimensiune n (numarul elementelor) si k+1 (numarul de elemente ce trebuie eliminat + cazul in care nu se elimina nici un element)
+
+	Cazuri de baza: pentru cazul in care nu se elimina niciun element stochez in prima coloana avantajul rezultat de la fiecare tura. Pe prima linie trec mereu valoarea primului element
+
+	Dupa cazul de baza, incep sa compar valorile obtinute astfel: dp[i][j]=Math.max(dp[i][j-1],dp[i-1][j] + (sau-) l.get(i+j));
+
+	Verific (la o anumita tura) ce s-ar fi intamplat daca as fi ales elementul i+j in loc de elementul i+j-1. Daca imi iese un avantaj mai mare folosind un alte element, atunci in celula respectiva adaug valoarea noua, altfel pastrez valoarea de la cazul anterior (dp[i][j-1])
+
+	Exemplu: daca aveam elementele in ordine elementele a b c d si la o anumita tura as fi avut avantajul a-b, la urmatorul caz as fi verificat a-c si mai tarziu a-d.
+
+	Observatie: La fiecare coloana in parte, se shifteaza elementele noi pe care le verific cu cate un element. Pana la final se va verifica fiecare element cel putin odata
+
+	Exemplu: pentru sirul 9 8 7 6 5 4 3 2 1 si avem n=9 si k=4 atunci avem
+		caz de baza (joc fara eliminari): se calculeaza avantajul folosind toate elementele de la 8 in jos (9 exista oricum la fiecare caz)
+		caz urmator: verific 7 6 5 4 3 2 1
+		caz urmator: verific 6 5 4 3 2 1
+		caz urmator: verific 5 4 3 2 1
+		caz final: verific 4 3 2 1
+
+	Rezultatul optim final va fi dat de dp[n-k-1][k]
+
+PROBLEMA 3
+
+	La aceasta problema, spre deosebire de prima problema jucatorii au numai doua elemente posibile dintre care sa aleaga. De asemenea ordinea trebuie sa ramana asa cum e data. 
+
+	Am realizat faptul jucatorii, la tura lor, aleg elementul astfel incat se indeplinesc urmatoarea conditie: sa aleaga elementul astfel incat sa-si maximizeze punctajul propriu si sa minimizeze punctajul openentului (sa nu permita sa ia mai mult)
+
+	Algoritmul functioneaza in felul urmator:
+
+-intr-un subsir de la i pana la j, jucatorul are de ales intre elementul i si elementul j
+-daca jucatorul alege elementul i atunci oponentul are de ales intre i+1 si j. Daca oponentul alege i+1 atunci jucatorul poate alege intre i+2 si j, altfel (daca openentul alege j) jucatorul are de ales intre i+1 si j-1. Deci se ajunge la o formula de genul v[i]+min(dp[i+2][j],dp[i+1][j-1]) (se alege min deoarece se stie ca openentul joaca optim)
+-asemenator se petrece si pentru cazul in care jucatorul alege elementul j, obtinand-use o formul v[j]+min(dp[i+1][j-1],dp[i][j-2])
+-combinand cele doua posibilitati se obtine formul dp[i][j]=max(v[i]+min(dp[i+2][j],dp[i+1][j-1]),v[j]+min(dp[i+1][j-1],dp[i][j-2]));
+
+	Formula de mai sus are rolul de a calcula punctajul maxim pe care jucatorul il poate obtine din subsirul [i,...,j]
+
+	Dupa calculul punctajului maxim intorc diferenta maxima ce sa poate obtine cu formula 2*punctaj-s (s-suma tuturor elementelor)
+ 
+PROBLEMA 4
+
+	Am impartit aceasta problema in doua subprobleme: calculul numarului de permutari posibile ale unui sir de n elemente si calculul numarului de sirurilor distincte (care nu au toate elementele la fel) care duc la rezultatul k. Calculul permutarilor s-a facut printr-o bucla in care se inmulteau elementele pentru a obtine n! (n factorial).
+
+	Pentru a gasi acel numar de siruri distincte, am lucrat pe cateva exemple cu scopul de a gasi o regula: ceva ce sa lege numarul de combinari care indeplinesc conditia de datele primite
+
+	Am lucrat pe unul din testele din checker (cel cu n=5, k=4 si v=10) si am scris de mana toate sirurile care corespundeau conditiilor si am urmarit pe aceste rezultate anumite aspecte precum frecventa aparitiilor in anumite intervale
+	
+	Am implementat cateva functii de backtracking care m-au ajutat sa vizualizez mai bine rezultatele. Am inceput sa vad ca existau diverse pattern-uri care se repetau de genul: distantele intre sirurile care aveau diferenta k erau proportionale, rezultate in anumite intervale de siruri
+
+	Intr-un final am remarcat ca in functie de n ieseau diferite combinatii la diferite intervale. Comparand impreuna cu v si k am ajuns la formula care contine un produs format din mai multe elemente de tip (v-k-i) si (k-j) (in functie de n).
+
+	Pentru fiecare element in plus in sir (adica cu cat creste n) se adauga ori un element (v-k-i) (daca n este par), ori un element (k-j) (daca n este impar). Pe langa acest produs mai exista si un numitor care este ori de forma 1/((n/2)!)^2 (pentru n impar) ori 1/(((n/2)!)*((n/2-1)!)). 
+
+	Deci formula generala ar fi de forma 
+	-(v-k-i)*(k-j)/((n/2)!)^2 pt i (intre 0 si n/2-1), j (intre 1 si n/2),si n impar
+	-(v-k-i)*(k-j)/(((n/2)!)*((n/2-1)!)) pt i (intre 0 si n/2-1), j (intre 1 si n/2-1) si n par
+
+	Pentru a calcula acest numar de combinari favorabile am incercat sa calculez separat numaratorul si numitorul pentru ca la final sa le impart, insa am avut probleme la impartire (din cauza overflow-ului). Am descoperit o alta metoda de abordare.
+
+	Am descoperit ca daca puneam rezultatul permutarilor supra numitorul, obtineam o formula foarte asemanatoare cu numarul de combinari al unui sir: n!/((n/2)!)^2 sau n!/(((n/2)!)*((n/2-1)!))
+
+	Am decis ca in loc sa calculez numarul de permutari al unui sir, sa calculez numarul de combinari luate cate n/2 dintr-un sir de lungime n. Pentru asta am folosit programare dinamica.
+
+	Am creat o tabela de dimensiune n+1 si n+1 in care valorile de baza erau dp[i][0]=1 pentru i intre 0 si n. Cazul de baza reprezinta combinarile de i luate cate 0. Restul tabelei se completeaza cu dp[i][j]=dp[i - 1][j - 1] + dp[i - 1][j] cu i intre 1 si n si j intre 1 si i
+
+	Semnificatie: proprietate a combinarilor : C(n,k) = C(n-1,k-1)+C(n-1,k)
+
+	Rezultatul cautat este dat de dp[n][k]
+
+	Acest rezultat nu este chiar rezulatul cautat pentru inmultire. Pentru a ajunge la numarul cautat mai inmultim cu n/2 (n par) sau n/2+1 (n e impar)
+
+	Produsul format din elemente (v-k-i) si (k-j) se face intr-o bucla in care se adauga la produs alternativ cate un element de tip (v-k-i) si cate un element de tip (k-j)
+
+	Rezultatul final intors este dat de (numar combinari modificat)*(produsul din numarator)
+
+	Nota: la toate insumarile si la toate produsele am tinut cont de posibilitatea unui overflow si am utilizat (a*b)%mod si (a+b)%mod
+
+
