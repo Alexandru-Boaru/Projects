@@ -1,0 +1,8 @@
+Project: Regex Engine
+
+  Written in Python, using ANTLR for parsing the regex
+  The program receives a regex expression and a text file that contains one word per line as inputs. For the words that match with the regex it will print true, otherwise it will print false.
+  First use make in order to create necessary files for parsing
+  To run:
+    python main.py RAW <regex> <input_file.txt>
+    <regex> must be given as string (ex: ”(a(..)∗a)|(.∗0)”)
