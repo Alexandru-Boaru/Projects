@@ -1,7 +1,8 @@
 Written in C/C++
 
-Project 1: Message Channel implemtation. Check for corrupted, missing and delayed packages. Resend packages if necessary
+Project 1: Sliding Window Protocol. Selective Repeat. 
+  Check for corrupted, missing and delayed packages. Resend packages if necessary
 
-Project 2: Transmission of TCP packages
+Project 2: Client-Server application TCP and UDP for message management
 
-Project 3: HTTP operations. 
+Project 3: HTTP client. Communication with REST API 
