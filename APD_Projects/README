@@ -14,7 +14,7 @@ Project 2: Space Explorers and Federation HQ (bidirectional communication using 
     
 
 Project 3: Image Processing with MPI
-  Written in C
+  Written in C, using MPI
   To compile use make
   To run:
      mpirun -np N ./tema3 image_in.pnm image_out.pnm filter1 filter2 ... filterX
