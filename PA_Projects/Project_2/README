@@ -1,0 +1,175 @@
+BOARU ALEXANDRU
+321CB
+TEMA PA 2 - GRAFURI
+	
+	Am decis sa rezolv aceasta tema in limbajul Java. Inainte de scrierea temei, am dedus din cerinte cam ce fel de algoritmi ar trebui folositi in rezolvarea acestora. M-am documentat mai mult despre modul de functionare al algoritmului Dijkstra.
+	In realizarea acestei teme m-am folosit de codul primit de la laboratoare pentru citirea datelor si scrierea datelor rezultate in fisier. De asemenea am folosit o clasa MyScanner() primita de la tema anterioara pentru a citi datele de intrare intr-un timp mai scurt.
+	Pentru makefile am folosit ce am primit de la checker
+
+	In calcularea complexitatilor nu am luat in seama citirea datelor, completarea cu valori initiale a vectorilor/matricilor si scrierea datelor in output, deoarece timpul acestor operatii este mai mic fata de timpii totali de rulare
+	
+	P1: 
+	Folosind metoda readInput(), citesc din fisier numarul n si apoi citesc n valori (distantele dintre nodul sursa si celelalte noduri) si le stochez in matricea ar (pe prima  linie pun indicele curent, care este practic nodul care corespunde cu distanta, iar pe a doua linie distanta de la sursa la nod) 
+	In metoda getResult() creez o matrice care contine toate muchiile grafului pe care il construiesc. 
+	Mai intai sortez coloanele matricii ar in ordine crescatoare in functie de valorile distantelor. Pentru asta am folosit metoda Arrays.sort() impreuna cu un comparator.
+	Am decis sa contruiesc graful sub forma unui arbore, astfel incat fiecare distanta corespunde unui nivel in arbore. Definesc last ca find ultimul nod de pe un nivel (la inceput last este nodul sursa) si level ca fiind nivelul curent in care adaug nodurile (prima oara este setat la 0, nivelul sursei)
+	Daca elementul care vine imediat dupa sursa are distanta 0, atunci trec in -1 pe prima pozitie in matricea res (in metoda writeOutput() se verifica daca prima celula este -1, caz in care se trece -1 in fisierul de output)
+	Iterez prin matricea de distante sortata si adaug cate o muchie in matrice. Fiecare muchie este intre ultimul nod de pe nivelul anterior si indicele nodului de la acel pas de iteratie. De fiecare data cand se termina un nivel, modific last si incrementez level. Daca cumva in momentul in care se incrementeaza nivelul, acesta nu corespunde cu distanta curenta atunci se pune -1 in prima celula si opresc iterarea. 
+	Daca se cicleaza pana la finalul matricii ar fara probleme, atunci se rerturneaza matricea res
+	Dupa cum a spus mai devreme, daca in prima celula se gaseste -1, atunci se trece -1, altfel se scrie numarul de muchii (care o sa fie egal n-1) si se scriu toate perechile de muchii
+
+	Complexitate:
+		-sortare N (log N)
+		-iterarea matricii N
+	Complexitatea este O(NlogN)
+	
+	P2:
+	Pentru acest task am facut o clasa Coord cu campurile i si j (reprezinta coordonatele in matrice)
+	Am implementat in aceasta clasa metodele compare(), equals(), hashCode() (pentru ca am folosit HashSet) si toString() (pentru debug)
+	Datele sunt citite in metoda readInput(). In ar se trec valorile matricii, iar vis este o matrice in care retin nodurile vizitate
+	Am decis sa rezolv aceasta problema folosind DFS de mai multe ori (considerand ca matricea este un graf care contine muchii intre celule):
+		-plec din primul nod se aplica dfs, verificand la fiecare nod daca se respecta conditia din cerinta
+		-daca se gaseste un element mai mare decat maximul curent, dar totusi se respecta inca conditia, atunci adaug nodul cel nou si actualizez maximul. La fel procedez si pentru minim
+		-dupa ce se termina dfs-ul caut un nod care nu a fost vizitat anterior si pornesc din acel nod un nou dfs, insa pot parcurge si zonele care au fost anterior vizitate (cu alte cuvinte vis e folosita numai cand caut un nou nod sursa)
+		-se repeta procesul pana cand se viziteaza tot graful
+	Pentru dfs, am facut o stiva st, in care retin toate nodurile parcurse si pe care o folosesc pentru a face backtrack prin noduri. Am creat de asemeneaz un HashSet in care trec nodurile care s-au terminat de procesat si nodurile care au fost verificate, dar care nu indeplineau conditia.
+	La fiecare nod gasit se incrementeaza un contor, iar la final se verifica daca numarul gasit este mai mare decat alt numar gasit anterior
+	La final numarul maxim gasit este returnat si este scris in fisierul de output
+
+	Complexitate:
+		-dfs worstcase este O(Nmax+Mmax), unde Nmax este aria maxima ce se poate gasi, iar Mmax este numarul de muchii al ariei
+	
+	Complexitate totala worstcase: O(N*(Nmax+Mmax)), unde N e numarul de noduri (celule ale matricii)
+
+	P3:
+	Pentru acest task am facut o clasa Edge, care implementeaza Comparator si Comparable, si care are campuri node (nodul catre care indica muchia), cost (costul muchiei) si type (tipul muchiei)
+	In readInput() citesc datele din fisier. Creez o matrice de ArrayList numita adj pe care o folosesc pentru a stoca toate muchiile primite din input, si o matrice tip care contine penalizarile
+	La inceput matricea de distante este populata cu Long.MAX_VALUE, mai putin prima linie (nodul 1) care este populata cu 0
+	Pentru rezolvarea acestui task am folosit algoritmul Dijkstra, dar in loc de un vector de distante, am o matrice de distante (liniie reprezinta nodurile, iar coloanele reprezinta tipul muchiei care intra in nod). Am ales sa fac acest lucru pentru ca se poate intampla sa aleg o muchie care are cost minim catre un nod, dar ar putea sa existe o alta muchie care are costul mai mare, dar este un alt tip muchie care in pereche cu urmatoarea muchie, ar putea sa rezulte un cost mai bun.
+	Am facut un PriorityQueue pq, din care scot tot timpul muchia cu cost minim
+	Pentru fiecare muchie luata din coada, se itereaza prin muchiile copil ale acestei muchii
+	Pentru fiecare muchie copil se verifica care dintre muchiile care intra in muchia parinte este mai buna, cautand costul minim posibil. Daca muchia copil a fost actulizata cu un cost nou pentru unul din drumuri, atunci se introduce muchia in coada
+	Intr-un final matricea va fi populata cu mai multe costuri de cai posibile (in functie de ordinea tipurilor de muchii in drum). Celule care au ramas Long.MAX_VALUE semnifica faptul ca nu exista un drum care sa se termine cu acel tip de muchie in acel nod
+	Ultima linie contine, toate costurile minime de pe toate caile. Costul cel mai mic este costul cautat
+
+	Complexitatea:
+	Complexitatea algoritmului Dijkstra este O(N^2+M) (N-noduri, M-muchii)
+	Daca luam in calcul fiecare drum posibil la ficare muchie in parte atunci complexitatea ar fi O( T*(N^2+M) ) (T - numarul de tipuri de muchie)
+	
+
+	P4:
+	Pentru acest task am avut o abordare asemanatoare cu cea de la task-ul 3: am folosit din nou Dijkstra impreuna cu o matrice de costuri/distante
+	Din nou, am o clasa Edge care functioneaza la fel cu cea de la task 3
+	In readInput() citesc datele din fisier. Creez o matrece adj care contine toate muchiile si un vector tip care contine toate penalizarile
+	Deoarece numarul de tipuri maxim este destul de mic (7), m-am gandi sa fac ca matricea de distante sa contina coloanele care sa corespunda tuturor seturilor posibile de drum. Am organizat astfel incat forma binara a indicelui coloanei sa dea informatii in legatura cu tipurile de muchii continute in drum (de exemplu indicele 10 are forma binara 1010, bitii de 1 sunt muchiile existente in drum, ceea ce inseamna ca aceasta coloana corespunde unui drum cu muchii de tip 2 si de tip 4)
+	Astfel numarul de coloane este egal cu 2^T-1. Deci numarul maxim de coloane este 128
+	Initial matricea de distante este populata cu Long.MAX_VALUE, iar prima linie cu 0 (primul nod)
+	Primele muchii procesate sunt cele care pleaca din nodul sursa (1), iar matricea de distante este completata corespunzator cu costurile acestora. Aceste muchii sunt introduse in coada
+	Cat timp coada nu e goala, se scoate muchia de cost minim si se itereaza pe copiii acestei muchii
+	Folosind operatii pe biti, se verifica toate costurile de pe caile posibile care intra in muchia copil
+	Daca costul unei cai este Long.MAX_VALUE, atunci se ignora (nu este o cale valida)
+	Tipul muchiei copil se transforma in 1 << (muchie_copil - 1)
+	Operatia cale & 1<<(muchie_copil - 1) este folosita pentru a verifica daca tipul muchiei exista deja in acest drum. Daca rezultatul este 0 (tipul nu este prezent). Atunci relaxarea muchiei se face impreuna cu penalizarea. Daca rezultatul e diferit de 0, atunci nu se ia in considerare penalizarea muchiei
+	Operatia cale | 1<<(muchie_copil - 1) este folosita pentru a stabili celula ce trebuie actualizata in matrice. Daca tipul de muchie exista deja in cale, atunci rezultatul este identic cu calea, altfel este calea + tipul de muchie.
+	Daca costul unei muchii este actualizat, introduc muchia in coada
+	Ultima linie din matricea distantelor contine, toate costurile minime de pe toate caile. Costul cel mai mic este costul cautat
+
+	Complexitate:
+	Complexitatea algoritmului Dijkstra este O(N^2+M) (N-noduri, M-muchii)
+	Daca luam in calcul fiecare combinatie de muchii posibile la fiecare muchie in parte atunci complexitatea ar fi:
+		O( (2^T)*(N^2+M) ) (T - numarul de tipuri de muchie)
+
+	OBSERVATII TIMPI DE RULARE:
+	-Am remarcat ca timpii de pe checker-ului local sunt diferiti de cei care rezulta pe VMCHECKER. Voi mentiona in acest document timpii care imi rezulta pe checker-ul local:
+	-Task1: pe local imi trec toate testele. Timpii sunt intotdeauna mai mici de o secunda
+	-timpi de la 3 rulari succesive:
+
+		test0:	0.118	0.096	0.110	s
+		test1:	0.133	0.111	0.124	s
+		test2:	0.112	0.107	0.131	s
+		test3:	0.113	0.111	0.133	s
+		test4:	0.124	0.135	0.134	s
+		test5:	0.127	0.126	0.165	s
+		test6:	0.097	0.116	0.129	s
+		test7:	0.119	0.119	0.099	s
+		test8:	0.142	0.147	0.158	s
+		test9:	0.186	0.139	0.146	s
+		test10:	0.198	0.184	0.172	s
+		test11:	0.202	0.188	0.157	s
+		test12:	0.125	0.121	0.094	s
+		test13:	0.425	0.245	0.287	s
+		test14:	0.286	0.313	0.292	s
+		test15:	0.187	0.211	0.220	s
+		test16:	0.841	0.685	0.627	s
+		test17:	0.682	0.667	0.576	s
+		test18:	0.733	0.830	0.738	s
+		test19:	0.195	0.312	0.220	s
+	-Task2: imi trec toate testele mai putin testul 6 si 16 din motive de WA. Timpii sunt in general sub jumatate de secunda
+	-timpi de la 3 rulari succesive
+		test0:	0.089	0.113	0.101	s
+		test1:	0.132	0.113	0.125	s
+		test2:	0.122	0.113	0.141	s
+		test3:	0.107	0.120	0.109	s
+		test4:	0.117	0.127	0.123	s
+		test5:	0.136	0.113	0.114	s
+		test6:	0.124	0.151	0.123	s	WA
+		test7:	0.117	0.094	0.123	s
+		test8:	0.126	0.127	0.133	s
+		test9:	0.138	0.151	0.122	s
+		test10:	0.102	0.117	0.156	s
+		test11:	0.104	0.126	0.141	s
+		test12:	0.174	0.185	0.152	s
+		test13:	0.176	0.212	0.247	s
+		test14:	0.143	0.142	0.150	s
+		test15:	0.140	0.254	0.135	s
+		test16:	0.676	0.892	0.655	s	WA
+		test17:	0.193	0.309	0.157	s
+		test18:	0.201	0.310	0.261	s
+		test19:	0.339	0.398	0.340	s
+	-Task3: imi trec toate testele cu timpi de cel mult o secunda, cu exceptia testului 9 unde se fac de obicei 1.5 secunde
+	-timpi de la 3 rulari succesive
+		test0:	0.095	0.158	0.101	s
+		test1:	0.106	0.152	0.126	s
+		test2:	0.118	0.139	0.111	s
+		test3:	0.109	0.157	0.115	s
+		test4:	0.171	0.117	0.164	s
+		test5:	0.143	0.138	0.137	s
+		test6:	0.260	0.264	0.243	s
+		test7:	0.353	0.336	0.333	s
+		test8:	0.718	0.735	0.751	s
+		test9:	1.449	1.439	1.363	s
+		test10:	0.114	0.091	0.103	s
+		test11:	0.096	0.123	0.124	s
+		test12:	0.117	0.096	0.110	s
+		test13:	0.114	0.130	0.101	s
+		test14:	0.145	0.147	0.138	s
+		test15:	0.180	0.205	0.166	s
+		test16:	0.225	0.166	0.234	s
+		test17:	0.308	0.289	0.285	s
+		test18:	0.166	1.002	0.977	s
+		test19:	0.507	0.673	0.538	s
+	-Task4: imi trec toate testele mai putin testul 9 din motiv de TLE
+	-timpi de la 3 rulari succesive
+		test0:	0.100	0.118	0.101	s
+		test1:	0.118	0.122	0.140	s
+		test2:	0.103	0.129	0.094	s
+		test3:	0.140	0.123	0.125	s
+		test4:	0.143	0.131	0.141	s
+		test5:	0.178	0.151	0.209	s
+		test6:	0.515	0.512	0.479	s
+		test7:	1.654	1.371	1.330	s
+		test8:	2.677	2.358	2.738	s
+		test9:	2.809	2.808	2.807	s	TLE
+		test10:	0.090	0.113	0.084	s
+		test11:	0.113	0.163	0.102	s
+		test12:	0.133	0.098	0.110	s
+		test13:	0.116	0.139	0.132	s
+		test14:	0.165	0.185	0.150	s
+		test15:	0.124	0.183	0.145	s
+		test16:	0.279	0.323	0.257	s
+		test17:	1.943	1.958	1.973	s
+		test18:	0.462	0.427	0.433	s
+		test19:	1.529	1.620	1.560	s
+
+	-Nota primita pe checker-ul local este 125.50/130 
+
