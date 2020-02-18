@@ -3,20 +3,20 @@
 Projects made for school
 
 Folders:
-EGC_Projects -> Introduction to Computer Graphics
+EGC_Projects -> Elemente de Grafica pe Calculator / Introduction to Computer Graphics
 
-LFA_Project -> Formal Languages and Automata
+LFA_Project -> Limbaje Formale si Automate / Formal Languages and Automata
 
-APD_Projects -> Parallel and Distributed Algorithms
+APD_Projects -> Algoritmi Paraleli si Distribuiti / Parallel and Distributed Algorithms
 
-PC_Projects -> Communication Protocols
+PC_Projects -> Protocoale de Comunicatie / Communication Protocols
 
-PA_Projects -> Algorithm Design
+PA_Projects -> Proiectarea Algoritmilor / Algorithm Design
 
-POO_Projects -> Object-Oriented Programming
+POO_Projects -> Programare Orienatata pe Obiecte / Object-Oriented Programming
 
-PP_Projects -> Programming Paradigms
+PP_Projects -> Paradigme de Programare / Programming Paradigms
 
-MN_Projects -> Numerical Methods
+MN_Projects -> Metode Numerice / Numerical Methods
 
-SD_Projects -> Data Structures
+SD_Projects -> Structuri de Date / Data Structures
