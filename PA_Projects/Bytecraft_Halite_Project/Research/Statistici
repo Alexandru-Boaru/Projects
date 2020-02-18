@@ -1,0 +1,51 @@
+Ultima versiune a botului:
+
+S1: 54731
+S2: 45133
+S3: 38288
+S4: 44789
+S5: 32436
+
+
+Botul se opreste la tura 215 in loc de 200 din a mai construi nave:
+S1: 63393
+S2: 49807
+S3: 41213
+S4: 28723
+S5: 34604
+
+Coloana 1: seed-ul
+Coloana 2: scorul botului
+Coloana 3: intervalul de ture in care botul s-a oprit din a mai construi nave si a scos maximul de halite
+Coloana 4: ratia halite/1 cell
+Coloana 5: dimensiunea hartii
+Coloana 6: halite-ul total initial al hartii
+Coloana 7: totalul de ture ale jocului
+
+Max: 10%turn to go back to dropoff
+S1: 63393  //215 - 216  246.3   32*32   252232  400
+S2: 54974  //232 - 235  231.9   32*32   237465  400
+S3: 41213  //206 - 233  175.5   40*40   280881  425
+S4: 44789  //195 - 208  221.4   48*48   510162  450
+S5: 34604  //214 - 225  148.7   56*56   466536  475
+
+Max: 5%turn to go back to dropoff
+S1: 66052  //215 - 216  246.3   32*32   252232  400
+S2: 58090  //232 - 235  231.9   32*32   237465  400
+S3: 43323  //206 - 233  175.5   40*40   280881  425
+S4: 38848  //195 - 208  221.4   48*48   510162  450
+S5: 36412  //214 - 225  148.7   56*56   466536  475
+
+//UPDATE 1
+Coloana 1: seed-ul
+Coloana 2: halite-ul total initial al hartii
+Coloana 3: halite-ul total extras
+Coloana 4: halite-ul folosit pe nave
+Coloana 5: halite-ul folosit pe dropoff-uri
+Coloana 6: halite-ul pierdut pe drum
+
+S1: 252232  130979  29000  28000  19248
+S2: 237465  107138  22000  24000  16005
+S3: 280881  129545  32000  36000  23257
+S4: 510162  112564  23000  24000  20775
+S5: 466536  95041   19000  28000  15605

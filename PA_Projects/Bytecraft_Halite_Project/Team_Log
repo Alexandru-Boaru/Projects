@@ -1,0 +1,99 @@
+andrei.vlad0412: Team_Log adaugat
+andrei.vlad0412: Source code Halite-III pentru Java adaugat
+andrei.vlad0412: Am adaugat cronometru intre frame-uri
+
+alexandru.boaru: Am inceput testarea comenzilor din API
+
+adrian.neata0506: Am facut mai multe simulari ale jocului sa vad cum functioneaza jocul
+
+TEAM.MEETING: Am discutat regulile si restrictiile jocului pentru a fi toti pe 
+    aceeasi lungime de unda si apoi am gandit algoritmul
+    
+adrian.neata0506 + alexandru.boaru: Am venit cu ideea algoritmului:
+                    -fiecare barca cauta local punctul cu cat mai mult Halite
+                    -dupa o anumita limita de storage, barca se intoarce la baza
+                    -in ultimele 50 de ture, toate barcile se intorc la baza
+                    
+adrian.neata0506 + andrei.vlad0412: Ne-am luat la intrecere cu alexandru.boaru pentru
+    a scrie prima versiune a botului...
+
+alexandru.boaru: Am scris prima versiune a botului dupa algoritmul mai sus mentionat -> V1
+
+giorgiana.balan: Am modificat run_game.sh linux/mac pentru a rula
+                mai usor cele 5 teste pentru Etapa 1
+                se va rula cu comanda 
+                        ./run_game.sh nr_test
+                unde nr_test este un numar intre 1-5
+
+giorgiana.balan: Rezultatele Etapei 1 pentru versiunea 1 a botului sunt:
+                Test 1) 38317 HALITE    /   8000
+                Test 2) 19786 HALITE    /   12000
+                Test 3) 43278 HALITE    /   20000
+                Test 4) 21392 HALITE    /   13000
+                Test 5) 20733 HALITE    /   12000
+
+
+adrian.neata0506: M-am mai uitat pe simularile botului pentru a vedea ce imbunatatiri
+    se mai pot face. Navele se intorceau prea devreme la dropoff-uri la final, iar
+    pe unele harti era mai bine daca se generau mai multe nave.
+    
+alexandru.boaru: Am scris a doua versiune a botului: -> V2
+                    -am corectat niste bug-uri
+                    -am rescris conditia de intoarcere la baza dupa umplere
+
+giorgiana.balan: Rezultatele Etapei 1 pentru versiunea 2 a botului sunt:
+                Test 1) 54731 HALITE    /   8000
+                Test 2) 45133 HALITE    /   12000
+                Test 3) 38288 HALITE    /   20000
+                Test 4) 44789 HALITE    /   13000
+                Test 5) 32436 HALITE    /   12000
+                
+alexandru.boaru: Am scris a treia versiune a botului: -> V3
+                    -corectare bug-uri
+                    -adaugarea dropoff-urilor
+                    -modificarea unor parametrii cu scopul de a scoate punctaje cat mai bune
+
+adrian.neata0506: Am restructurat si modularizat codul scris de alexandru.boaru -> V3.1
+
+andrei.vlad0412: Am creat Makefile + Readme (inca se completeaza), am integrat checker-ul
+                echipei de PA pentru testare si am generat arhiva cu fisierele necesare
+
+giorgiana.balan: Am adaugat modificarile lui Adrian in codul sursa + 
+                am modificat Readme pentru a fi vizibil pe pagina principala git.
+
+giorgiana.balan: Rezultatele Etapei 1 pentru versiunea 3.1 a botului sunt:
+                Test 1) 79692 HALITE    /   8000
+                Test 2) 65122 HALITE    /   12000
+                Test 3) 67564 HALITE    /   20000
+                Test 4) 61532 HALITE    /   13000
+                Test 5) 51780 HALITE    /   12000                
+
+giorgiana.balan: Am testat ultima versiune a botului cu checker-ul echipei PA
+                Scorul final este: 0.45 /   0.45
+                
+giorgiana.balan: Am adaugat un script care genereaza arhiva (./genereaza_arhiva.sh)
+                 si unul care ruleaza jocul cu checker-ul echipei PA (./run_checker.sh).
+
+giorgiana.balan: Am generat arhiva finala cu versiunea 3.1 a botului.
+
+giorgiana.balan: Am completat README.md, am modificat readme cu sintaxa markdown,
+                am sters fisierele inutile din proiect.
+
+andrei.vlad0412: Am generat arhiva finala pentru Etapa 1
+
+andrei.vlad0412: Am importat o librarie de Algebra Liniara pentru a ne permite operarea
+                pe matrici mult mai usor (pentru aplicarea diversilor algoritmi).
+                Libraria se numeste Linear Algebra For Java (la4j). Link-ul este specificat
+                in README.md la sectiunea de SURSE DE INSPIRATIE. Acolo se gaseste codul sursa
+                impreuna cu JavaDoc-ul
+
+                Am testat acest pachet in clasa Matrice.java folosind adunarea a doua matrici. 
+
+                De asemenea am modificat Makefile si "./genereaza_arhiva.sh"
+
+
+giorgiana.balan: Am generat arhiva pentru Etapa 2 si am modificat README.md
+
+andrei.vlad0412: Am generat arhiva pentru Etapa 3, am modificat README.md
+
+andrei.vlad0412: Am generat arhiva pentru Etapa 4, am modificat README.md
